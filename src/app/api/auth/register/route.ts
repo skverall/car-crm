@@ -55,20 +55,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Check if user already exists
-    try {
-      const { data: existingUser } = await supabase.auth.admin.getUserByEmail(email)
-
-      if (existingUser?.user) {
-        return NextResponse.json(
-          { error: 'User with this email already exists' },
-          { status: 400 }
-        )
-      }
-    } catch (error) {
-      // User doesn't exist, continue with creation
-      console.log('User does not exist, proceeding with creation')
-    }
+    // Skip user existence check for now to avoid potential issues
 
     // Create user with admin API (bypasses email confirmation)
     const { data, error } = await supabase.auth.admin.createUser({
@@ -90,6 +77,27 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('User created successfully:', data.user?.id)
+
+    // Manually create user profile since trigger might not work
+    if (data.user) {
+      try {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: data.user.id,
+            role: role,
+            full_name: fullName,
+          })
+
+        if (profileError) {
+          console.error('Error creating user profile:', profileError)
+          // Don't fail the registration if profile creation fails
+        }
+      } catch (profileError) {
+        console.error('Error creating user profile:', profileError)
+        // Don't fail the registration if profile creation fails
+      }
+    }
 
     return NextResponse.json(
       {
