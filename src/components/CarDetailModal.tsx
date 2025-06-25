@@ -5,14 +5,14 @@ import { createClient } from '@/lib/supabase/client'
 import { Car, Expense, Document } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
 import { getStatusColor, getStatusLabel, getCategoryLabel, formatDate } from '@/lib/utils'
-import { 
-  X, 
-  Edit, 
-  Plus, 
-  FileText, 
+import {
+  X,
+  Edit,
+  Plus,
+  FileText,
   Upload,
   DollarSign,
-
+  Trash2,
   Car as CarIcon
 } from 'lucide-react'
 import AddExpenseModal from './AddExpenseModal'
@@ -37,6 +37,8 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
   const [showUploadDocumentModal, setShowUploadDocumentModal] = useState(false)
   const [showEditCarModal, setShowEditCarModal] = useState(false)
   const [showSaleModal, setShowSaleModal] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const supabase = createClient()
 
   const fetchCarDetails = async () => {
@@ -95,12 +97,37 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
   const calculateProfit = () => {
     if (!car || !car.sale_price) return null
-    
+
     const salePriceAED = convertCurrency(car.sale_price, car.sale_currency || 'AED', 'AED')
     const purchasePriceAED = convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
     const totalExpensesAED = calculateTotalExpenses()
-    
+
     return salePriceAED - purchasePriceAED - totalExpensesAED
+  }
+
+  const handleDeleteCar = async () => {
+    if (!car) return
+
+    setIsDeleting(true)
+    try {
+      // Delete car (this will cascade delete expenses and documents due to ON DELETE CASCADE)
+      const { error } = await supabase
+        .from('cars')
+        .delete()
+        .eq('id', car.id)
+
+      if (error) throw error
+
+      // Close modal and refresh parent component
+      onClose()
+      onCarUpdated()
+    } catch (error) {
+      console.error('Error deleting car:', error)
+      alert('Failed to delete car. Please try again.')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
   }
 
   if (!isOpen || !carId) return null
@@ -154,6 +181,13 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
               title="Edit vehicle"
             >
               <Edit className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="text-red-400 hover:text-red-600"
+              title="Delete vehicle"
+            >
+              <Trash2 className="h-5 w-5" />
             </button>
             <button
               onClick={onClose}
@@ -477,6 +511,53 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
           onCarUpdated()
         }}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-[60]">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">
+                Delete Vehicle
+              </h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete this vehicle? This action will permanently remove:
+                </p>
+                <ul className="text-sm text-gray-500 mt-2 text-left">
+                  <li>• Vehicle information ({car?.vin})</li>
+                  <li>• All expenses ({expenses.length} items)</li>
+                  <li>• All documents ({documents.length} items)</li>
+                </ul>
+                <p className="text-sm text-red-600 mt-2 font-medium">
+                  This action cannot be undone.
+                </p>
+              </div>
+              <div className="items-center px-4 py-3">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={isDeleting}
+                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteCar}
+                    disabled={isDeleting}
+                    className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 disabled:opacity-50"
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

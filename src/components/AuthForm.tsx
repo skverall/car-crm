@@ -3,12 +3,15 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { UserRole } from '@/lib/types/database'
 
 export default function AuthForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [role, setRole] = useState<UserRole>('importer')
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
@@ -20,12 +23,34 @@ export default function AuthForm() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Use simplified registration without email confirmation
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            fullName,
+            role,
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed')
+        }
+
+        // Automatically sign in after successful registration
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
-        if (error) throw error
-        setError('Check your email for the confirmation link!')
+
+        if (signInError) throw signInError
+        router.refresh()
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -67,7 +92,7 @@ export default function AuthForm() {
             Car CRM System
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
+            {isSignUp ? 'Create your account - No email confirmation required!' : 'Sign in to your account'}
           </p>
           {!isSignUp && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
@@ -76,9 +101,34 @@ export default function AuthForm() {
               </p>
             </div>
           )}
+          {isSignUp && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-center text-sm text-green-700">
+                ✅ <strong>Simplified Registration:</strong> Create your account instantly without email verification
+              </p>
+            </div>
+          )}
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleAuth}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="rounded-md shadow-sm space-y-3">
+            {isSignUp && (
+              <div>
+                <label htmlFor="fullName" className="sr-only">
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Full Name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
@@ -89,7 +139,7 @@ export default function AuthForm() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 ${!isSignUp ? 'rounded-t-md' : 'rounded-md'} focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -105,12 +155,33 @@ export default function AuthForm() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 ${!isSignUp ? 'rounded-b-md' : 'rounded-md'} focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {isSignUp && (
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                  Account Type
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as UserRole)}
+                >
+                  <option value="importer">🚗 Importer - Buy and sell vehicles</option>
+                  <option value="exporter">📦 Exporter - Export vehicles to other countries</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  Choose your business type to get the right dashboard experience
+                </p>
+              </div>
+            )}
           </div>
 
           {error && (

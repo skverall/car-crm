@@ -12,16 +12,20 @@ import {
   LogOut,
   Menu,
   X,
-  CreditCard
+  CreditCard,
+  Package,
+  Ship
 } from 'lucide-react'
+import { UserProfile } from '@/lib/types/database'
 
 interface LayoutProps {
   children: React.ReactNode
   currentPage: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts'
   onPageChange: (page: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts') => void
+  userProfile?: UserProfile | null
 }
 
-export default function Layout({ children, currentPage, onPageChange }: LayoutProps) {
+export default function Layout({ children, currentPage, onPageChange, userProfile }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -31,13 +35,26 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
     router.refresh()
   }
 
-  const navigation = [
-    { id: 'dashboard', name: 'Dashboard', icon: Home },
-    { id: 'inventory', name: 'Inventory', icon: CarIcon },
-    { id: 'finance', name: 'Finance', icon: DollarSign },
-    { id: 'debts', name: 'Debts', icon: CreditCard },
-    { id: 'customers', name: 'Customers', icon: Users },
-  ]
+  const getNavigation = () => {
+    const baseNavigation = [
+      {
+        id: 'dashboard',
+        name: userProfile?.role === 'exporter' ? 'Export Dashboard' : 'Dashboard',
+        icon: userProfile?.role === 'exporter' ? Ship : Home
+      },
+      {
+        id: 'inventory',
+        name: userProfile?.role === 'exporter' ? 'Export Inventory' : 'Inventory',
+        icon: userProfile?.role === 'exporter' ? Package : CarIcon
+      },
+      { id: 'finance', name: 'Finance', icon: DollarSign },
+      { id: 'debts', name: 'Debts', icon: CreditCard },
+      { id: 'customers', name: 'Customers', icon: Users },
+    ]
+    return baseNavigation
+  }
+
+  const navigation = getNavigation()
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -53,13 +70,26 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <button
-            onClick={() => onPageChange('dashboard')}
-            className="flex items-center cursor-pointer"
-          >
-            <CarIcon className="h-8 w-8 text-blue-600 mr-3" />
-            <h1 className="text-xl font-bold text-gray-900">DM Motion CRM</h1>
-          </button>
+          <div className="flex flex-col">
+            <button
+              onClick={() => onPageChange('dashboard')}
+              className="flex items-center cursor-pointer"
+            >
+              <CarIcon className="h-8 w-8 text-blue-600 mr-3" />
+              <h1 className="text-xl font-bold text-gray-900">DM Motion CRM</h1>
+            </button>
+            {userProfile && (
+              <div className="flex items-center mt-1 ml-11">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  userProfile.role === 'exporter'
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {userProfile.role === 'exporter' ? '📦 Exporter' : '🚗 Importer'}
+                </span>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-gray-400 hover:text-gray-600"

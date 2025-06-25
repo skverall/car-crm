@@ -1,6 +1,7 @@
 export type CarStatus = 'in_transit' | 'for_sale' | 'sold' | 'reserved'
 export type ExpenseCategory = 'purchase' | 'transport' | 'customs' | 'repair' | 'maintenance' | 'marketing' | 'office' | 'other'
 export type CurrencyType = 'AED' | 'USD' | 'EUR' | 'GBP'
+export type UserRole = 'importer' | 'exporter'
 
 export interface Client {
   id: string
@@ -112,6 +113,16 @@ export interface CarProfitAnalysis {
   days_to_sell?: number
 }
 
+export interface UserProfile {
+  id: string
+  role: UserRole
+  full_name?: string
+  company_name?: string
+  phone?: string
+  created_at: string
+  updated_at: string
+}
+
 // Database schema type for Supabase
 export interface Database {
   public: {
@@ -140,6 +151,11 @@ export interface Database {
         Row: ExchangeRate
         Insert: Omit<ExchangeRate, 'id' | 'created_at'>
         Update: Partial<Omit<ExchangeRate, 'id' | 'created_at'>>
+      }
+      user_profiles: {
+        Row: UserProfile
+        Insert: Omit<UserProfile, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>
       }
     }
     Views: {

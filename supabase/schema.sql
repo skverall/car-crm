@@ -5,6 +5,18 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TYPE car_status AS ENUM ('in_transit', 'for_sale', 'sold', 'reserved');
 CREATE TYPE expense_category AS ENUM ('purchase', 'transport', 'customs', 'repair', 'maintenance', 'marketing', 'office', 'other');
 CREATE TYPE currency_type AS ENUM ('AED', 'USD', 'EUR', 'GBP');
+CREATE TYPE user_role AS ENUM ('importer', 'exporter');
+
+-- Create user_profiles table to store additional user information
+CREATE TABLE user_profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    role user_role NOT NULL DEFAULT 'importer',
+    full_name VARCHAR(255),
+    company_name VARCHAR(255),
+    phone VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- Create clients table
 CREATE TABLE clients (
@@ -111,6 +123,7 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers for updated_at
+CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_cars_updated_at BEFORE UPDATE ON cars FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_expenses_updated_at BEFORE UPDATE ON expenses FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -183,13 +196,41 @@ GROUP BY c.id, c.vin, c.make, c.model, c.year, c.status,
          c.purchase_date, c.sale_date;
 
 -- Row Level Security (RLS) policies
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cars ENABLE ROW LEVEL SECURITY;
 ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for user_profiles (users can only access their own profile)
+CREATE POLICY "Users can view own profile" ON user_profiles
+    FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON user_profiles
+    FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON user_profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Create policies (for now, allow all authenticated users)
 CREATE POLICY "Allow all operations for authenticated users" ON cars FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all operations for authenticated users" ON expenses FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all operations for authenticated users" ON clients FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all operations for authenticated users" ON documents FOR ALL USING (auth.role() = 'authenticated');
+
+-- Create function to automatically create user profile on user registration
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.user_profiles (id, role, full_name)
+    VALUES (
+        NEW.id,
+        COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'importer'),
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create trigger to call the function when a new user is created
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
