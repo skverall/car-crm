@@ -27,6 +27,7 @@ export function useUserProfile() {
         if (error) {
           // If profile doesn't exist, create one from user metadata
           if (error.code === 'PGRST116') {
+            console.log('Creating new user profile...')
             const { data: newProfile, error: insertError } = await supabase
               .from('user_profiles')
               .insert({
@@ -38,11 +39,28 @@ export function useUserProfile() {
               .single()
 
             if (insertError) {
-              throw insertError
+              console.error('Error creating profile:', insertError)
+              // If we can't create profile, create a default one in memory
+              setProfile({
+                id: user.id,
+                role: 'importer',
+                full_name: user.email || 'User',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+            } else {
+              setProfile(newProfile)
             }
-            setProfile(newProfile)
           } else {
-            throw error
+            console.error('Profile fetch error:', error)
+            // Create a default profile in memory
+            setProfile({
+              id: user.id,
+              role: 'importer',
+              full_name: user.email || 'User',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
           }
         } else {
           setProfile(data)

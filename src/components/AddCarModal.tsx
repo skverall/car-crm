@@ -94,7 +94,10 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         .from('cars')
         .insert([carData])
 
-      if (error) throw error
+      if (error) {
+        console.error('Database error:', error)
+        throw new Error(`Failed to add vehicle: ${error.message}`)
+      }
 
       // Reset form and close modal
       setFormData({

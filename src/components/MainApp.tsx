@@ -8,6 +8,7 @@ import InventoryPage from './InventoryPage'
 import FinancePage from './FinancePage'
 import DebtsPage from './DebtsPage'
 import CustomersPage from './CustomersPage'
+import DebugUserInfo from './DebugUserInfo'
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function MainApp() {
@@ -58,6 +59,7 @@ export default function MainApp() {
   return (
     <Layout currentPage={currentPage} onPageChange={handlePageChange} userProfile={profile}>
       {renderCurrentPage()}
+      <DebugUserInfo />
     </Layout>
   )
 }
