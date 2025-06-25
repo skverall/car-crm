@@ -34,7 +34,7 @@ CREATE TABLE clients (
 CREATE TABLE cars (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    vin VARCHAR(50) UNIQUE NOT NULL, -- Increased from 17 to allow non-standard VINs
+    vin VARCHAR(50) NOT NULL, -- Increased from 17 to allow non-standard VINs
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
     year INTEGER NOT NULL,
@@ -64,7 +64,10 @@ CREATE TABLE cars (
 
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+    -- Constraints
+    CONSTRAINT cars_vin_user_unique UNIQUE (vin, user_id)
 );
 
 -- Create expenses table
