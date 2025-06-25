@@ -40,12 +40,6 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
   })
   const supabase = createClient()
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchAnalyticsData()
-    }
-  }, [isOpen, dateRange, fetchAnalyticsData])
-
   const fetchAnalyticsData = useCallback(async () => {
     setLoading(true)
     try {
@@ -64,6 +58,12 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
       setLoading(false)
     }
   }, [dateRange])
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAnalyticsData()
+    }
+  }, [isOpen, dateRange, fetchAnalyticsData])
 
   if (!isOpen) return null
 

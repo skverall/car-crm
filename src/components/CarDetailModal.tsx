@@ -39,12 +39,6 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
   const [showSaleModal, setShowSaleModal] = useState(false)
   const supabase = createClient()
 
-  useEffect(() => {
-    if (isOpen && carId) {
-      fetchCarDetails()
-    }
-  }, [isOpen, carId])
-
   const fetchCarDetails = async () => {
     if (!carId) return
     
@@ -86,6 +80,12 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (isOpen && carId) {
+      fetchCarDetails()
+    }
+  }, [isOpen, carId])
 
   const calculateTotalExpenses = () => {
     return expenses.reduce((total, expense) => {

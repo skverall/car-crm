@@ -34,10 +34,6 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null)
   const supabase = createClient()
 
-  useEffect(() => {
-    fetchCars()
-  }, [fetchCars])
-
   const fetchCars = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -53,6 +49,10 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
       setLoading(false)
     }
   }, [])
+
+  useEffect(() => {
+    fetchCars()
+  }, [fetchCars])
 
   const handleCarClick = (carId: string) => {
     setSelectedCarId(carId)
