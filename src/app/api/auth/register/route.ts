@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,18 +36,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Use regular client for now - we'll handle email confirmation differently
-    const supabase = createClient()
+    // Create Supabase client with service role for admin operations
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    // Try to sign up the user
-    const { data, error } = await supabase.auth.signUp({
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase environment variables')
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+
+    // Check if user already exists
+    try {
+      const { data: existingUser } = await supabase.auth.admin.getUserByEmail(email)
+
+      if (existingUser?.user) {
+        return NextResponse.json(
+          { error: 'User with this email already exists' },
+          { status: 400 }
+        )
+      }
+    } catch (error) {
+      // User doesn't exist, continue with creation
+      console.log('User does not exist, proceeding with creation')
+    }
+
+    // Create user with admin API (bypasses email confirmation)
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: role,
-        }
+      email_confirm: true, // Skip email confirmation
+      user_metadata: {
+        full_name: fullName,
+        role: role,
       }
     })
 
@@ -63,9 +93,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        message: 'User created successfully. Please check your email for confirmation.',
+        message: 'User created successfully',
         user: data.user,
-        needsConfirmation: !data.user?.email_confirmed_at
+        needsConfirmation: false // Admin API creates confirmed users
       },
       { status: 201 }
     )

@@ -53,8 +53,12 @@ export default function AuthForm() {
             password,
           })
 
-          if (signInError) throw signInError
-          router.refresh()
+          if (signInError) {
+            console.error('Sign in error after registration:', signInError)
+            setError('Registration successful! Please sign in manually.')
+          } else {
+            router.refresh()
+          }
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
