@@ -64,7 +64,14 @@ export default function AddDebtModal({ isOpen, onClose, onDebtAdded }: AddDebtMo
     setError('')
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to add a debt')
+      }
+
       const debtData = {
+        user_id: user.id,
         car_id: formData.car_id || null,
         creditor_name: formData.creditor_name.trim(),
         description: formData.description.trim(),

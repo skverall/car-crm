@@ -1,6 +1,7 @@
 -- Create debts table
 CREATE TABLE IF NOT EXISTS debts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   car_id UUID REFERENCES cars(id) ON DELETE SET NULL,
   creditor_name TEXT NOT NULL,
   description TEXT NOT NULL,
@@ -72,9 +73,27 @@ CREATE OR REPLACE TRIGGER trigger_debts_updated_at
 ALTER TABLE debts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE debt_payments ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies (allow all operations for authenticated users)
-CREATE POLICY "Allow all operations for authenticated users" ON debts
-  FOR ALL USING (auth.role() = 'authenticated');
+-- Create RLS policies (users can only access their own debts)
+CREATE POLICY "Users can view own debts" ON debts
+  FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Allow all operations for authenticated users" ON debt_payments
-  FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "Users can insert own debts" ON debts
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own debts" ON debts
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own debts" ON debts
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own debt payments" ON debt_payments
+  FOR SELECT USING (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
+
+CREATE POLICY "Users can insert own debt payments" ON debt_payments
+  FOR INSERT WITH CHECK (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
+
+CREATE POLICY "Users can update own debt payments" ON debt_payments
+  FOR UPDATE USING (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
+
+CREATE POLICY "Users can delete own debt payments" ON debt_payments
+  FOR DELETE USING (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));

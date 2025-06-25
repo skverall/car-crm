@@ -55,21 +55,20 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
         return
       }
 
-      // Fetch debts (only for cars belonging to current user)
+      // Fetch debts (only for current user)
       const { data: debtsData, error: debtsError } = await supabase
         .from('debts')
         .select(`
           *,
-          cars!inner (
+          cars (
             id,
             vin,
             make,
             model,
-            year,
-            user_id
+            year
           )
         `)
-        .eq('cars.user_id', user.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (debtsError) throw debtsError

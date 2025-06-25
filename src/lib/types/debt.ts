@@ -2,6 +2,7 @@ import { CurrencyType } from './database'
 
 export interface Debt {
   id: string
+  user_id: string
   car_id: string | null
   creditor_name: string
   description: string
