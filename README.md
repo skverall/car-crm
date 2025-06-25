@@ -2,6 +2,11 @@
 
 A professional CRM system for car dealerships with VIN tracking, financial analytics, and profit calculations.
 
+## 🚗 Demo Access Available
+Use the **Demo Login** button for instant access without registration!
+- Email: `aydmaxx@gmail.com`
+- Password: `Demo1234`
+
 ## 🚗 Features
 
 - **VIN-based Car Tracking**: Each vehicle is tracked by unique VIN with complete history
