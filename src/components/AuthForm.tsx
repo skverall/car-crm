@@ -43,14 +43,19 @@ export default function AuthForm() {
           throw new Error(data.error || 'Registration failed')
         }
 
-        // Automatically sign in after successful registration
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+        // Check if email confirmation is needed
+        if (data.needsConfirmation) {
+          setError('Registration successful! Please check your email for confirmation link.')
+        } else {
+          // Automatically sign in after successful registration
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
 
-        if (signInError) throw signInError
-        router.refresh()
+          if (signInError) throw signInError
+          router.refresh()
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,

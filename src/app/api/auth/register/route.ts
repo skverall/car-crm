@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password, fullName, role } = await request.json()
+
+    console.log('Registration attempt:', { email, fullName, role })
 
     if (!email || !password) {
       return NextResponse.json(
@@ -34,26 +36,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = await createClient()
+    // Use regular client for now - we'll handle email confirmation differently
+    const supabase = createClient()
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase.auth.admin.getUserByEmail(email)
-    
-    if (existingUser.user) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      )
-    }
-
-    // Create user with admin API (bypasses email confirmation)
-    const { data, error } = await supabase.auth.admin.createUser({
+    // Try to sign up the user
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: true, // Skip email confirmation
-      user_metadata: {
-        full_name: fullName,
-        role: role,
+      options: {
+        data: {
+          full_name: fullName,
+          role: role,
+        }
       }
     })
 
@@ -65,10 +59,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('User created successfully:', data.user?.id)
+
     return NextResponse.json(
-      { 
-        message: 'User created successfully',
-        user: data.user 
+      {
+        message: 'User created successfully. Please check your email for confirmation.',
+        user: data.user,
+        needsConfirmation: !data.user?.email_confirmed_at
       },
       { status: 201 }
     )
