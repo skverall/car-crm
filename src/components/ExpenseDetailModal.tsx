@@ -42,22 +42,31 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
 
   const fetchExpenseDetails = async () => {
     if (!expenseId) return
-    
+
     setLoading(true)
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        return
+      }
+
       const { data, error } = await supabase
         .from('expenses')
         .select(`
           *,
-          cars (
+          cars!inner (
             id,
             vin,
             make,
             model,
-            year
+            year,
+            user_id
           )
         `)
         .eq('id', expenseId)
+        .eq('cars.user_id', user.id)
         .single()
 
       if (error) throw error
@@ -87,13 +96,28 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
 
   const handleDelete = async () => {
     if (!expense) return
-    
+
     setIsDeleting(true)
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to delete an expense')
+      }
+
+      // Delete expense only if it belongs to current user's car
+      // Note: We need to join with cars table to check user_id
       const { error } = await supabase
         .from('expenses')
         .delete()
         .eq('id', expense.id)
+        .in('car_id',
+          await supabase
+            .from('cars')
+            .select('id')
+            .eq('user_id', user.id)
+            .then(({ data }) => data?.map(car => car.id) || [])
+        )
 
       if (error) throw error
 
@@ -110,8 +134,15 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
 
   const handleUpdate = async () => {
     if (!expense) return
-    
+
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to update an expense')
+      }
+
+      // Update expense only if it belongs to current user's car
       const { error } = await supabase
         .from('expenses')
         .update({
@@ -123,6 +154,7 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
           notes: editForm.notes || null
         })
         .eq('id', expense.id)
+        .eq('cars.user_id', user.id)
 
       if (error) throw error
 

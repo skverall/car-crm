@@ -44,6 +44,12 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     setError('')
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to add a vehicle')
+      }
+
       // Format VIN but don't block submission for invalid VIN
       const formattedVIN = formatVIN(formData.vin)
 
@@ -64,6 +70,7 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
 
       // Prepare data for insertion
       const carData = {
+        user_id: user.id,
         vin: formattedVIN,
         make: formData.make.trim(),
         model: formData.model.trim(),
@@ -77,6 +84,7 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         purchase_currency: formData.purchase_currency,
         purchase_date: formData.purchase_date,
         purchase_location: formData.purchase_location.trim() || null,
+        dealer: formData.dealer.trim() || null,
         status: formData.status,
         location: formData.location.trim() || null,
         notes: formData.notes.trim() || null

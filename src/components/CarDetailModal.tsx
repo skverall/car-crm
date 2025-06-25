@@ -43,14 +43,22 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
   const fetchCarDetails = async () => {
     if (!carId) return
-    
+
     setLoading(true)
     try {
-      // Fetch car details
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        return
+      }
+
+      // Fetch car details (only if it belongs to current user)
       const { data: carData, error: carError } = await supabase
         .from('cars')
         .select('*')
         .eq('id', carId)
+        .eq('user_id', user.id)
         .single()
 
       if (carError) throw carError
@@ -110,11 +118,18 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
     setIsDeleting(true)
     try {
-      // Delete car (this will cascade delete expenses and documents due to ON DELETE CASCADE)
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to delete a vehicle')
+      }
+
+      // Delete car (only if it belongs to current user)
       const { error } = await supabase
         .from('cars')
         .delete()
         .eq('id', car.id)
+        .eq('user_id', user.id)
 
       if (error) throw error
 

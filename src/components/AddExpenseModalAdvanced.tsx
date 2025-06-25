@@ -49,9 +49,18 @@ export default function AddExpenseModalAdvanced({ isOpen, onClose, onExpenseAdde
 
   const fetchCars = async () => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setCars([])
+        return
+      }
+
       const { data, error } = await supabase
         .from('cars')
         .select('id, vin, make, model, year, status')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error

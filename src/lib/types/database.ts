@@ -16,6 +16,7 @@ export interface Client {
 
 export interface Car {
   id: string
+  user_id: string
   vin: string
   make: string
   model: string
@@ -25,29 +26,29 @@ export interface Car {
   fuel_type?: string
   transmission?: string
   mileage?: number
-  
+
   // Purchase information
   purchase_price: number
   purchase_currency: CurrencyType
   purchase_date: string
   purchase_location?: string
   dealer?: string
-  
+
   // Sale information
   sale_price?: number
   sale_currency?: CurrencyType
   sale_date?: string
   client_id?: string
-  
+
   // Status and tracking
   status: CarStatus
   location?: string
   notes?: string
-  
+
   // Metadata
   created_at: string
   updated_at: string
-  
+
   // Relations
   client?: Client
   expenses?: Expense[]
@@ -96,6 +97,7 @@ export interface ExchangeRate {
 
 export interface CarProfitAnalysis {
   id: string
+  user_id: string
   vin: string
   make: string
   model: string

@@ -97,10 +97,17 @@ export default function EditCarModal({ isOpen, onClose, car, onCarUpdated }: Edi
         notes: formData.notes.trim() || null
       }
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to edit a vehicle')
+      }
+
       const { error } = await supabase
         .from('cars')
         .update(updateData)
         .eq('id', car.id)
+        .eq('user_id', user.id)
 
       if (error) throw error
 

@@ -48,22 +48,33 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Fetch cars
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setCars([])
+        setExpenses([])
+        return
+      }
+
+      // Fetch cars (only for current user)
       const { data: carsData, error: carsError } = await supabase
         .from('cars')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (carsError) throw carsError
       setCars(carsData || [])
 
-      // Fetch expenses
+      // Fetch expenses (only for cars belonging to current user)
       const { data: expensesData, error: expensesError } = await supabase
         .from('expenses')
         .select(`
           *,
-          cars (vin, make, model, year)
+          cars!inner (vin, make, model, year, user_id)
         `)
+        .eq('cars.user_id', user.id)
         .order('expense_date', { ascending: false })
 
       if (expensesError) throw expensesError

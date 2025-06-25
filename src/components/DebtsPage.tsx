@@ -46,27 +46,39 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Fetch debts
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setDebts([])
+        setCars([])
+        return
+      }
+
+      // Fetch debts (only for cars belonging to current user)
       const { data: debtsData, error: debtsError } = await supabase
         .from('debts')
         .select(`
           *,
-          cars (
+          cars!inner (
             id,
             vin,
             make,
             model,
-            year
+            year,
+            user_id
           )
         `)
+        .eq('cars.user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (debtsError) throw debtsError
 
-      // Fetch cars for dropdown
+      // Fetch cars for dropdown (only current user's cars)
       const { data: carsData, error: carsError } = await supabase
         .from('cars')
         .select('id, vin, make, model, year')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (carsError) throw carsError

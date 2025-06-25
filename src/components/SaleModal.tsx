@@ -111,7 +111,13 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
         clientId = newClient.id
       }
 
-      // Update car with sale information
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to sell a vehicle')
+      }
+
+      // Update car with sale information (only if it belongs to current user)
       const { error: updateError } = await supabase
         .from('cars')
         .update({
@@ -122,6 +128,7 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
           status: 'sold'
         })
         .eq('id', car.id)
+        .eq('user_id', user.id)
 
       if (updateError) throw updateError
 

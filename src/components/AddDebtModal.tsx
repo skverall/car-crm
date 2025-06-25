@@ -37,9 +37,18 @@ export default function AddDebtModal({ isOpen, onClose, onDebtAdded }: AddDebtMo
 
   const fetchCars = async () => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setCars([])
+        return
+      }
+
       const { data, error } = await supabase
         .from('cars')
         .select('id, vin, make, model, year')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error

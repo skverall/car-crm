@@ -34,9 +34,18 @@ export default function InventoryPage({ onDataUpdate }: InventoryPageProps) {
 
   const fetchCars = async () => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setCars([])
+        return
+      }
+
       const { data, error } = await supabase
         .from('car_profit_analysis')
         .select('*')
+        .eq('user_id', user.id)
         .order('purchase_date', { ascending: false })
 
       if (error) throw error

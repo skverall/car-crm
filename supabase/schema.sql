@@ -33,6 +33,7 @@ CREATE TABLE clients (
 -- Create cars table
 CREATE TABLE cars (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     vin VARCHAR(50) UNIQUE NOT NULL, -- Increased from 17 to allow non-standard VINs
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
@@ -42,24 +43,25 @@ CREATE TABLE cars (
     fuel_type VARCHAR(20),
     transmission VARCHAR(20),
     mileage INTEGER,
-    
+
     -- Purchase information
     purchase_price DECIMAL(12,2) NOT NULL,
     purchase_currency currency_type NOT NULL DEFAULT 'AED',
     purchase_date DATE NOT NULL,
     purchase_location VARCHAR(255),
-    
+    dealer VARCHAR(255),
+
     -- Sale information
     sale_price DECIMAL(12,2),
     sale_currency currency_type DEFAULT 'AED',
     sale_date DATE,
     client_id UUID REFERENCES clients(id),
-    
+
     -- Status and tracking
     status car_status NOT NULL DEFAULT 'in_transit',
     location VARCHAR(255),
     notes TEXT,
-    
+
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -139,8 +141,9 @@ INSERT INTO exchange_rates (from_currency, to_currency, rate, date) VALUES
 
 -- Create views for analytics
 CREATE VIEW car_profit_analysis AS
-SELECT 
+SELECT
     c.id,
+    c.user_id,
     c.vin,
     c.make,
     c.model,
@@ -150,30 +153,30 @@ SELECT
     c.purchase_currency,
     c.sale_price,
     c.sale_currency,
-    COALESCE(SUM(e.amount * CASE 
+    COALESCE(SUM(e.amount * CASE
         WHEN e.currency = 'AED' THEN 1
         WHEN e.currency = 'USD' THEN 3.67
         WHEN e.currency = 'EUR' THEN 4.00
         WHEN e.currency = 'GBP' THEN 4.60
         ELSE 1
     END), 0) AS total_expenses_aed,
-    CASE 
-        WHEN c.status = 'sold' THEN 
-            (c.sale_price * CASE 
+    CASE
+        WHEN c.status = 'sold' THEN
+            (c.sale_price * CASE
                 WHEN c.sale_currency = 'AED' THEN 1
                 WHEN c.sale_currency = 'USD' THEN 3.67
                 WHEN c.sale_currency = 'EUR' THEN 4.00
                 WHEN c.sale_currency = 'GBP' THEN 4.60
                 ELSE 1
-            END) - 
-            (c.purchase_price * CASE 
+            END) -
+            (c.purchase_price * CASE
                 WHEN c.purchase_currency = 'AED' THEN 1
                 WHEN c.purchase_currency = 'USD' THEN 3.67
                 WHEN c.purchase_currency = 'EUR' THEN 4.00
                 WHEN c.purchase_currency = 'GBP' THEN 4.60
                 ELSE 1
-            END) - 
-            COALESCE(SUM(e.amount * CASE 
+            END) -
+            COALESCE(SUM(e.amount * CASE
                 WHEN e.currency = 'AED' THEN 1
                 WHEN e.currency = 'USD' THEN 3.67
                 WHEN e.currency = 'EUR' THEN 4.00
@@ -184,14 +187,14 @@ SELECT
     END AS profit_aed,
     c.purchase_date,
     c.sale_date,
-    CASE 
-        WHEN c.status = 'sold' AND c.sale_date IS NOT NULL THEN 
+    CASE
+        WHEN c.status = 'sold' AND c.sale_date IS NOT NULL THEN
             c.sale_date - c.purchase_date
         ELSE NULL
     END AS days_to_sell
 FROM cars c
 LEFT JOIN expenses e ON c.id = e.car_id
-GROUP BY c.id, c.vin, c.make, c.model, c.year, c.status, 
+GROUP BY c.id, c.user_id, c.vin, c.make, c.model, c.year, c.status,
          c.purchase_price, c.purchase_currency, c.sale_price, c.sale_currency,
          c.purchase_date, c.sale_date;
 

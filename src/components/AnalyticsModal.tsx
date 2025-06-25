@@ -43,9 +43,18 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
   const fetchAnalyticsData = useCallback(async () => {
     setLoading(true)
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setCars([])
+        return
+      }
+
       const { data, error } = await supabase
         .from('car_profit_analysis')
         .select('*')
+        .eq('user_id', user.id)
         .gte('purchase_date', dateRange.startDate)
         .lte('purchase_date', dateRange.endDate)
         .order('purchase_date', { ascending: false })
