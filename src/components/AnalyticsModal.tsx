@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency } from '@/lib/utils/currency'
-import { formatDate } from '@/lib/utils'
+
 import { 
   X, 
   TrendingUp, 
@@ -12,7 +12,7 @@ import {
   DollarSign,
   Calendar,
   BarChart3,
-  PieChart
+
 } from 'lucide-react'
 import { 
   BarChart, 
@@ -44,9 +44,9 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
     if (isOpen) {
       fetchAnalyticsData()
     }
-  }, [isOpen, dateRange])
+  }, [isOpen, dateRange, fetchAnalyticsData])
 
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     setLoading(true)
     try {
       const { data, error } = await supabase
@@ -63,18 +63,18 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
     } finally {
       setLoading(false)
     }
-  }
+  }, [dateRange])
 
   if (!isOpen) return null
 
   // Calculate analytics
   const soldCars = cars.filter(car => car.status === 'sold' && car.profit_aed !== null)
   const totalProfit = soldCars.reduce((sum, car) => sum + (car.profit_aed || 0), 0)
-  const totalRevenue = soldCars.reduce((sum, car) => sum + (car.sale_price || 0) * 
-    (car.sale_currency === 'AED' ? 1 : 
-     car.sale_currency === 'USD' ? 3.67 : 
-     car.sale_currency === 'EUR' ? 4.00 : 
-     car.sale_currency === 'GBP' ? 4.60 : 1), 0)
+  // const totalRevenue = soldCars.reduce((sum, car) => sum + (car.sale_price || 0) *
+  //   (car.sale_currency === 'AED' ? 1 :
+  //    car.sale_currency === 'USD' ? 3.67 :
+  //    car.sale_currency === 'EUR' ? 4.00 :
+  //    car.sale_currency === 'GBP' ? 4.60 : 1), 0)
   
   const avgProfit = soldCars.length > 0 ? totalProfit / soldCars.length : 0
   const avgDaysToSell = soldCars.length > 0 ? 
@@ -316,7 +316,7 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {bestSellingModels.map((model, index) => (
+                    {bestSellingModels.map((model) => (
                       <tr key={`${model.make}-${model.model}`}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">

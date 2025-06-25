@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Car, CurrencyType, CarStatus } from '@/lib/types/database'
+import { CurrencyType, CarStatus } from '@/lib/types/database'
 import { validateVIN, formatVIN } from '@/lib/utils'
 import { getAllCurrencies } from '@/lib/utils/currency'
 import { X } from 'lucide-react'
@@ -99,8 +99,8 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
       
       onCarAdded()
       onClose()
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
     }

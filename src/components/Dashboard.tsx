@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Car, CarProfitAnalysis } from '@/lib/types/database'
+import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
 import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
 import {
@@ -12,7 +12,7 @@ import {
   TrendingDown,
   Plus,
   Search,
-  Filter,
+
   BarChart3
 } from 'lucide-react'
 import AddCarModal from './AddCarModal'
@@ -36,9 +36,9 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
 
   useEffect(() => {
     fetchCars()
-  }, [])
+  }, [fetchCars])
 
-  const fetchCars = async () => {
+  const fetchCars = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('car_profit_analysis')
@@ -52,7 +52,7 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const handleCarClick = (carId: string) => {
     setSelectedCarId(carId)

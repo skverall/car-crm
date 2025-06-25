@@ -12,8 +12,7 @@ import {
   FileText, 
   Upload,
   DollarSign,
-  Calendar,
-  MapPin,
+
   Car as CarIcon
 } from 'lucide-react'
 import AddExpenseModal from './AddExpenseModal'
