@@ -17,6 +17,7 @@ import {
   DollarSign
 } from 'lucide-react'
 import AddDebtModal from './AddDebtModal'
+import DebtDetailModal from './DebtDetailModal'
 
 interface DebtsPageProps {
   onDataUpdate?: () => void
@@ -29,11 +30,18 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'overdue'>('all')
   const [showAddDebtModal, setShowAddDebtModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedDebtId, setSelectedDebtId] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     fetchData()
   }, [])
+
+  const handleDebtClick = (debtId: string) => {
+    setSelectedDebtId(debtId)
+    setShowDetailModal(true)
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -267,7 +275,11 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
         <ul className="divide-y divide-gray-200">
           {filteredDebts.map((debt) => (
-            <li key={debt.id} className="px-6 py-4">
+            <li
+              key={debt.id}
+              className="px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => handleDebtClick(debt.id)}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -318,6 +330,17 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
         isOpen={showAddDebtModal}
         onClose={() => setShowAddDebtModal(false)}
         onDebtAdded={fetchData}
+      />
+
+      {/* Debt Detail Modal */}
+      <DebtDetailModal
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false)
+          setSelectedDebtId(null)
+        }}
+        debtId={selectedDebtId}
+        onDebtUpdated={fetchData}
       />
     </div>
   )

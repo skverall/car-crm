@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 import {
   Car as CarIcon,
   BarChart3,
@@ -27,8 +28,17 @@ interface LayoutProps {
 
 export default function Layout({ children, currentPage, onPageChange, userProfile }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setCurrentUser(user)
+    }
+    getCurrentUser()
+  }, [])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -124,6 +134,29 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
           </div>
 
           <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200 px-3 sm:px-4">
+            {/* User Info */}
+            {currentUser && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        {(userProfile?.full_name || currentUser.email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="ml-3 min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {userProfile?.full_name || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {currentUser.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={handleSignOut}
               className="w-full flex items-center px-3 sm:px-4 py-4 sm:py-3 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200 rounded-lg transition-colors touch-manipulation"
@@ -146,19 +179,41 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
             >
               <Menu className="h-6 w-6" />
             </button>
-            <button
-              onClick={() => onPageChange('dashboard')}
-              className="flex items-center cursor-pointer touch-manipulation"
-            >
-              <CarIcon className="h-6 w-6 text-blue-600 mr-2" />
-              <h1 className="text-base sm:text-lg font-bold text-gray-900">DM Motion CRM</h1>
-            </button>
-            <button
-              onClick={handleSignOut}
-              className="text-gray-400 hover:text-gray-600 active:text-gray-800 p-2 -mr-2 touch-manipulation"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
+            <div className="flex items-center">
+              <button
+                onClick={() => onPageChange('dashboard')}
+                className="flex items-center cursor-pointer touch-manipulation mr-3"
+              >
+                <CarIcon className="h-6 w-6 text-blue-600 mr-2" />
+                <h1 className="text-base sm:text-lg font-bold text-gray-900">DM Motion CRM</h1>
+              </button>
+              {currentUser && userProfile && (
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  userProfile.role === 'exporter'
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {userProfile.role === 'exporter' ? '📦' : '🚗'}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {currentUser && (
+                <div className="flex items-center">
+                  <div className="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-medium">
+                      {(userProfile?.full_name || currentUser.email || 'U').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={handleSignOut}
+                className="text-gray-400 hover:text-gray-600 active:text-gray-800 p-2 touch-manipulation"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
 

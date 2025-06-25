@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import AddExpenseModalAdvanced from './AddExpenseModalAdvanced'
 import AnalyticsModal from './AnalyticsModal'
+import ExpenseDetailModal from './ExpenseDetailModal'
 
 interface FinancePageProps {
   onDataUpdate?: () => void
@@ -31,11 +32,18 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
   const [selectedCarId, setSelectedCarId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     fetchData()
   }, [])
+
+  const handleExpenseClick = (expenseId: string) => {
+    setSelectedExpenseId(expenseId)
+    setShowDetailModal(true)
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -237,7 +245,11 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
         <ul className="divide-y divide-gray-200">
           {(activeTab === 'car-expenses' ? filteredCarExpenses : filteredOtherExpenses).map((expense) => (
-            <li key={expense.id} className="px-6 py-4">
+            <li
+              key={expense.id}
+              className="px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => handleExpenseClick(expense.id)}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -300,6 +312,17 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
       <AnalyticsModal
         isOpen={showAnalyticsModal}
         onClose={() => setShowAnalyticsModal(false)}
+      />
+
+      {/* Expense Detail Modal */}
+      <ExpenseDetailModal
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false)
+          setSelectedExpenseId(null)
+        }}
+        expenseId={selectedExpenseId}
+        onExpenseUpdated={fetchData}
       />
     </div>
   )

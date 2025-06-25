@@ -4,15 +4,17 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Client } from '@/lib/types/database'
 import { formatDate } from '@/lib/utils'
-import { 
-  Plus, 
-  User, 
-  Mail, 
+import {
+  Plus,
+  User,
+  Mail,
   Phone,
   MapPin,
   Edit,
-  Search
+  Search,
+  Trash2
 } from 'lucide-react'
+import ClientDetailModal from './ClientDetailModal'
 
 interface CustomersPageProps {
   onDataUpdate?: () => void
@@ -24,6 +26,8 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
   const supabase = createClient()
 
   const [formData, setFormData] = useState({
@@ -37,6 +41,30 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
   useEffect(() => {
     fetchClients()
   }, [])
+
+  const handleClientClick = (clientId: string) => {
+    setSelectedClientId(clientId)
+    setShowDetailModal(true)
+  }
+
+  const handleDeleteClient = async (clientId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent triggering the row click
+
+    if (confirm('Are you sure you want to delete this client?')) {
+      try {
+        const { error } = await supabase
+          .from('clients')
+          .delete()
+          .eq('id', clientId)
+
+        if (error) throw error
+        fetchClients()
+      } catch (error) {
+        console.error('Error deleting client:', error)
+        alert('Failed to delete client. Please try again.')
+      }
+    }
+  }
 
   const fetchClients = async () => {
     setLoading(true)
@@ -261,7 +289,11 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
             {filteredClients.map((client) => (
-              <li key={client.id} className="px-6 py-4">
+              <li
+                key={client.id}
+                className="px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                onClick={() => handleClientClick(client.id)}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
@@ -298,10 +330,21 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
                       Added {formatDate(client.created_at)}
                     </span>
                     <button
-                      onClick={() => handleEdit(client)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleEdit(client)
+                      }}
                       className="text-blue-600 hover:text-blue-800"
+                      title="Edit client"
                     >
                       <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => handleDeleteClient(client.id, e)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Delete client"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -327,6 +370,17 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
           </p>
         </div>
       )}
+
+      {/* Client Detail Modal */}
+      <ClientDetailModal
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false)
+          setSelectedClientId(null)
+        }}
+        clientId={selectedClientId}
+        onClientUpdated={fetchClients}
+      />
     </div>
   )
 }
