@@ -33,7 +33,7 @@ CREATE TABLE clients (
 -- Create cars table
 CREATE TABLE cars (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    vin VARCHAR(17) UNIQUE NOT NULL,
+    vin VARCHAR(50) UNIQUE NOT NULL, -- Increased from 17 to allow non-standard VINs
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
     year INTEGER NOT NULL,

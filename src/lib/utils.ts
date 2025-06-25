@@ -31,13 +31,14 @@ export function calculateDaysBetween(startDate: string | Date, endDate: string |
 }
 
 export function validateVIN(vin: string): boolean {
-  // Check if VIN is exactly 17 characters long
-  if (vin.length !== 17) {
+  // More flexible VIN validation - allows any length but checks format
+  if (vin.length === 0) {
     return false
   }
 
-  // Basic VIN validation - 17 characters, alphanumeric except I, O, Q
-  const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/
+  // Check if VIN contains only valid characters (alphanumeric except I, O, Q)
+  // This is more flexible and doesn't enforce 17 character length
+  const vinRegex = /^[A-HJ-NPR-Z0-9]+$/
   return vinRegex.test(vin.toUpperCase())
 }
 

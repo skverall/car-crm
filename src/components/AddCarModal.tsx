@@ -44,15 +44,22 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     setError('')
 
     try {
-      // Validate VIN
+      // Format VIN but don't block submission for invalid VIN
       const formattedVIN = formatVIN(formData.vin)
 
+      // Show warnings but don't prevent submission
+      let warnings = []
       if (formattedVIN.length !== 17) {
-        throw new Error(`VIN must be exactly 17 characters. Current length: ${formattedVIN.length}`)
+        warnings.push(`Warning: VIN length is ${formattedVIN.length} characters instead of standard 17`)
       }
 
       if (!validateVIN(formattedVIN)) {
-        throw new Error('Invalid VIN format. VIN must contain only letters (except I, O, Q) and numbers.')
+        warnings.push('Warning: VIN format may be invalid (standard VIN contains only letters except I, O, Q and numbers)')
+      }
+
+      // If there are warnings, show them but continue with submission
+      if (warnings.length > 0) {
+        console.warn('VIN warnings:', warnings.join('; '))
       }
 
       // Prepare data for insertion
@@ -140,24 +147,28 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
             <label className="block text-sm font-medium text-gray-700">
               VIN *
               <span className="text-xs text-gray-500 ml-1">
-                ({formData.vin.length}/17 characters)
+                ({formData.vin.length} characters - standard is 17)
               </span>
             </label>
             <input
               type="text"
               name="vin"
               required
-              maxLength={17}
               className={`mt-1 block w-full border rounded-md px-3 py-2.5 sm:py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base sm:text-sm ${
-                formData.vin.length === 17 ? 'border-green-300' : 'border-gray-300'
+                formData.vin.length === 17 ? 'border-green-300' : 'border-yellow-300'
               }`}
               value={formData.vin}
               onChange={handleInputChange}
-              placeholder="Enter 17-character VIN"
+              placeholder="Enter VIN (any length accepted)"
             />
             {formData.vin.length > 0 && formData.vin.length !== 17 && (
-              <p className="mt-1 text-xs text-orange-600">
-                VIN must be exactly 17 characters
+              <p className="mt-1 text-xs text-yellow-600">
+                ⚠️ Non-standard VIN length (standard is 17 characters)
+              </p>
+            )}
+            {formData.vin.length > 0 && !validateVIN(formatVIN(formData.vin)) && (
+              <p className="mt-1 text-xs text-yellow-600">
+                ⚠️ VIN format may be non-standard
               </p>
             )}
           </div>

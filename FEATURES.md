@@ -3,7 +3,7 @@
 ## 🚗 Core Features
 
 ### 1. Vehicle Inventory Management
-- **VIN-based Tracking**: Each vehicle is uniquely identified by its 17-character VIN
+- **VIN-based Tracking**: Each vehicle is uniquely identified by its VIN (supports non-standard lengths)
 - **Complete Vehicle Profiles**: Make, model, year, color, engine, transmission, mileage
 - **Status Management**: Track vehicles through different stages
   - In Transit: Vehicle is being shipped/transported
