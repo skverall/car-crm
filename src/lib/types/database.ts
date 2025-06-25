@@ -5,6 +5,7 @@ export type UserRole = 'importer' | 'exporter'
 
 export interface Client {
   id: string
+  user_id: string
   name: string
   email?: string
   phone?: string
@@ -57,7 +58,8 @@ export interface Car {
 
 export interface Expense {
   id: string
-  car_id: string
+  user_id: string
+  car_id: string | null
   category: ExpenseCategory
   description: string
   amount: number
@@ -67,13 +69,14 @@ export interface Expense {
   notes?: string
   created_at: string
   updated_at: string
-  
+
   // Relations
   car?: Car
 }
 
 export interface Document {
   id: string
+  user_id: string
   car_id: string
   name: string
   type: string
@@ -81,7 +84,7 @@ export interface Document {
   file_size?: number
   mime_type?: string
   uploaded_at: string
-  
+
   // Relations
   car?: Car
 }

@@ -69,9 +69,18 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
   const fetchClients = async () => {
     setLoading(true)
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user')
+        setClients([])
+        return
+      }
+
       const { data, error } = await supabase
         .from('clients')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -90,7 +99,14 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
     setLoading(true)
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to manage clients')
+      }
+
       const clientData = {
+        user_id: user.id,
         name: formData.name.trim(),
         email: formData.email.trim() || null,
         phone: formData.phone.trim() || null,
@@ -104,6 +120,7 @@ export default function CustomersPage({ onDataUpdate }: CustomersPageProps) {
           .from('clients')
           .update(clientData)
           .eq('id', editingClient.id)
+          .eq('user_id', user.id)
 
         if (error) throw error
       } else {

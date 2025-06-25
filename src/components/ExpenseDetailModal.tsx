@@ -56,17 +56,16 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
         .from('expenses')
         .select(`
           *,
-          cars!inner (
+          cars (
             id,
             vin,
             make,
             model,
-            year,
-            user_id
+            year
           )
         `)
         .eq('id', expenseId)
-        .eq('cars.user_id', user.id)
+        .eq('user_id', user.id)
         .single()
 
       if (error) throw error
@@ -142,7 +141,7 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
         throw new Error('You must be logged in to update an expense')
       }
 
-      // Update expense only if it belongs to current user's car
+      // Update expense only if it belongs to current user
       const { error } = await supabase
         .from('expenses')
         .update({
@@ -154,7 +153,7 @@ export default function ExpenseDetailModal({ isOpen, onClose, expenseId, onExpen
           notes: editForm.notes || null
         })
         .eq('id', expense.id)
-        .eq('cars.user_id', user.id)
+        .eq('user_id', user.id)
 
       if (error) throw error
 

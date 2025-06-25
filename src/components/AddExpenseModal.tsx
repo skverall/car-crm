@@ -45,7 +45,14 @@ export default function AddExpenseModal({ isOpen, onClose, carId, onExpenseAdded
     setError('')
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to add an expense')
+      }
+
       const expenseData = {
+        user_id: user.id,
         car_id: carId,
         category: formData.category,
         description: formData.description.trim(),

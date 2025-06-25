@@ -67,14 +67,14 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
       if (carsError) throw carsError
       setCars(carsData || [])
 
-      // Fetch expenses (only for cars belonging to current user)
+      // Fetch expenses (only for current user)
       const { data: expensesData, error: expensesError } = await supabase
         .from('expenses')
         .select(`
           *,
-          cars!inner (vin, make, model, year, user_id)
+          cars (vin, make, model, year)
         `)
-        .eq('cars.user_id', user.id)
+        .eq('user_id', user.id)
         .order('expense_date', { ascending: false })
 
       if (expensesError) throw expensesError
