@@ -452,7 +452,6 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
             </div>
           </div>
         </div>
-        </div>
 
         {/* Cars Table */}
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
