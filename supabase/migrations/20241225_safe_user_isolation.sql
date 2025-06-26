@@ -99,7 +99,6 @@ ALTER TABLE documents ALTER COLUMN user_id SET NOT NULL;
 -- ===== STEP 5: DROP OLD RLS POLICIES =====
 
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON debts;
-DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON debt_payments;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON expenses;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON clients;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON documents;
@@ -112,15 +111,7 @@ CREATE POLICY "Users can insert own debts" ON debts FOR INSERT WITH CHECK (auth.
 CREATE POLICY "Users can update own debts" ON debts FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own debts" ON debts FOR DELETE USING (auth.uid() = user_id);
 
--- Debt payments policies
-CREATE POLICY "Users can view own debt payments" ON debt_payments 
-  FOR SELECT USING (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
-CREATE POLICY "Users can insert own debt payments" ON debt_payments 
-  FOR INSERT WITH CHECK (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
-CREATE POLICY "Users can update own debt payments" ON debt_payments 
-  FOR UPDATE USING (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
-CREATE POLICY "Users can delete own debt payments" ON debt_payments 
-  FOR DELETE USING (auth.uid() IN (SELECT user_id FROM debts WHERE id = debt_id));
+-- Note: debt_payments table policies skipped as table doesn't exist yet
 
 -- Expenses policies
 CREATE POLICY "Users can view own expenses" ON expenses FOR SELECT USING (auth.uid() = user_id);
