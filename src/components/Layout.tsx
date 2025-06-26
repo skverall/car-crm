@@ -164,6 +164,15 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
               <LogOut className="h-6 w-6 sm:h-5 sm:w-5 mr-3" />
               Sign Out
             </button>
+
+            {/* Signature */}
+            <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="text-center">
+                <p className="text-xs text-gray-400 font-light italic tracking-wide">
+                  by AydMaxx
+                </p>
+              </div>
+            </div>
           </div>
         </nav>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Car, Client, CurrencyType } from '@/lib/types/database'
+import { Car, Client, CurrencyType, PaymentMethod } from '@/lib/types/database'
 import { getAllCurrencies, formatCurrency, convertCurrency, calculateProfitInAED } from '@/lib/utils/currency'
 import { X, DollarSign, User } from 'lucide-react'
 
@@ -28,7 +28,8 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
     new_client_name: '',
     new_client_email: '',
     new_client_phone: '',
-    use_existing_client: true
+    use_existing_client: true,
+    payment_method: 'cash' as PaymentMethod
   })
 
   useEffect(() => {
@@ -125,6 +126,7 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
           sale_currency: formData.sale_currency,
           sale_date: formData.sale_date,
           client_id: clientId || null,
+          payment_method: formData.payment_method,
           status: 'sold'
         })
         .eq('id', car.id)
@@ -241,6 +243,21 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
               value={formData.sale_date}
               onChange={handleInputChange}
             />
+          </div>
+
+          {/* Payment Method */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Payment Method *</label>
+            <select
+              name="payment_method"
+              required
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={formData.payment_method}
+              onChange={handleInputChange}
+            >
+              <option value="cash">Cash</option>
+              <option value="bank_card">Bank/Card</option>
+            </select>
           </div>
 
           {/* Profit Calculation */}

@@ -12,8 +12,10 @@ import {
   TrendingDown,
   Plus,
   Search,
-
-  BarChart3
+  BarChart3,
+  Banknote,
+  CreditCard,
+  Clock
 } from 'lucide-react'
 import AddCarModal from './AddCarModal'
 import CarDetailModal from './CarDetailModal'
@@ -85,6 +87,7 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
     inTransit: cars.filter(car => car.status === 'in_transit').length,
     forSale: cars.filter(car => car.status === 'for_sale').length,
     sold: cars.filter(car => car.status === 'sold').length,
+    reserved: cars.filter(car => car.status === 'reserved').length,
     totalProfit: cars
       .filter(car => car.profit_aed !== null)
       .reduce((sum, car) => sum + (car.profit_aed || 0), 0),
@@ -98,6 +101,18 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
     }, 0),
     totalSaleValue: cars
       .filter(car => car.sale_price)
+      .reduce((sum, car) => {
+        return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
+      }, 0),
+    // Cash payments total
+    cashPayments: cars
+      .filter(car => car.status === 'sold' && car.payment_method === 'cash' && car.sale_price)
+      .reduce((sum, car) => {
+        return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
+      }, 0),
+    // Bank/Card payments total
+    bankPayments: cars
+      .filter(car => car.status === 'sold' && car.payment_method === 'bank_card' && car.sale_price)
       .reduce((sum, car) => {
         return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
       }, 0)
@@ -138,34 +153,18 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
       </div>
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          {/* Cash Payments */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-3 sm:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+                  <Banknote className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                 </div>
                 <div className="ml-3 sm:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Inventory Cars</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.unsoldCars}</dd>
-                    <dd className="text-xs text-gray-500 hidden sm:block">({stats.sold} sold)</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-green-400" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Profit</dt>
-                    <dd className="text-sm sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.totalProfit, 'AED')}
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Cash</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">
+                      {formatCurrency(stats.cashPayments, 'AED')}
                     </dd>
                   </dl>
                 </div>
@@ -173,37 +172,53 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
             </div>
           </div>
 
+          {/* Cars Sold */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-3 sm:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />
+                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
                 </div>
                 <div className="ml-3 sm:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Inventory Value</dt>
-                    <dd className="text-sm sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.totalInventoryValue, 'AED')}
-                    </dd>
-                    <dd className="text-xs text-gray-500 hidden sm:block">Total cost + expenses</dd>
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Cars Sold</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.sold}</dd>
                   </dl>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Bank/Card Payments */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-3 sm:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 text-purple-400" />
+                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" />
                 </div>
                 <div className="ml-3 sm:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Sale Value</dt>
-                    <dd className="text-sm sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.totalSaleValue, 'AED')}
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Bank</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">
+                      {formatCurrency(stats.bankPayments, 'AED')}
                     </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reserved Cars */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-3 sm:p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />
+                </div>
+                <div className="ml-3 sm:ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Reserved Cars</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.reserved}</dd>
                   </dl>
                 </div>
               </div>
@@ -273,54 +288,7 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
         )}
 
         {/* Additional Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Recent Activities */}
-          <div className="lg:col-span-2 bg-white shadow rounded-lg">
-            <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6 border-b border-gray-200">
-              <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900">Recent Activities</h3>
-            </div>
-            <div className="px-3 py-4 sm:px-4 sm:py-5 lg:p-6">
-              <div className="space-y-3 sm:space-y-4">
-                {cars.slice(0, 5).map((car) => (
-                  <div key={car.id} className="flex items-center space-x-2 sm:space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className={`w-2 h-2 rounded-full ${
-                        car.status === 'sold' ? 'bg-green-400' :
-                        car.status === 'for_sale' ? 'bg-blue-400' :
-                        car.status === 'in_transit' ? 'bg-yellow-400' : 'bg-gray-400'
-                      }`}></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
-                        {car.year} {car.make} {car.model}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-500 truncate">
-                        {car.status === 'sold' ? `Sold ${car.sale_date ? formatDate(car.sale_date) : 'recently'}` :
-                         car.status === 'for_sale' ? 'Available for sale' :
-                         car.status === 'in_transit' ? 'In transit' : 'Reserved'}
-                      </p>
-                    </div>
-                    <div className="flex-shrink-0">
-                      {car.status === 'sold' && car.profit_aed !== null && (
-                        <span className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          car.profit_aed >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          <span className="hidden sm:inline">{car.profit_aed >= 0 ? '+' : ''}</span>
-                          <span className="text-xs">{formatCurrency(car.profit_aed, 'AED')}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {cars.length === 0 && (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-gray-500">No recent activities</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Quick Actions & Alerts */}
           <div className="space-y-4 sm:space-y-6">
             {/* Quick Actions */}

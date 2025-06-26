@@ -2,6 +2,7 @@ export type CarStatus = 'in_transit' | 'for_sale' | 'sold' | 'reserved'
 export type ExpenseCategory = 'purchase' | 'transport' | 'customs' | 'repair' | 'maintenance' | 'marketing' | 'office' | 'other'
 export type CurrencyType = 'AED' | 'USD' | 'EUR' | 'GBP'
 export type UserRole = 'importer' | 'exporter'
+export type PaymentMethod = 'cash' | 'bank_card'
 
 export interface Client {
   id: string
@@ -40,6 +41,8 @@ export interface Car {
   sale_currency?: CurrencyType
   sale_date?: string
   client_id?: string
+  payment_method?: PaymentMethod
+  payment_method?: PaymentMethod
 
   // Status and tracking
   status: CarStatus
