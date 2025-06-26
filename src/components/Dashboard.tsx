@@ -15,7 +15,10 @@ import {
   BarChart3,
   Banknote,
   CreditCard,
-  Clock
+  Clock,
+  Package,
+  Target,
+  Calendar
 } from 'lucide-react'
 import AddCarModal from './AddCarModal'
 import CarDetailModal from './CarDetailModal'
@@ -115,7 +118,24 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
       .filter(car => car.status === 'sold' && car.payment_method === 'bank_card' && car.sale_price)
       .reduce((sum, car) => {
         return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
-      }, 0)
+      }, 0),
+    // Stock Summary - total cost of unsold inventory
+    stockValue: unsoldCars.reduce((sum, car) => {
+      return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
+    }, 0),
+    // Average days to sell for sold cars
+    avgDaysToSell: cars
+      .filter(car => car.status === 'sold' && car.days_to_sell)
+      .reduce((sum, car, _, arr) => {
+        return arr.length > 0 ? sum + (car.days_to_sell || 0) / arr.length : 0
+      }, 0),
+    // Monthly sales (cars sold this month)
+    monthlySales: cars.filter(car => {
+      if (!car.sale_date) return false
+      const saleDate = new Date(car.sale_date)
+      const now = new Date()
+      return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear()
+    }).length
   }
 
   if (loading) {
@@ -151,8 +171,8 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
           </button>
         </div>
       </div>
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        {/* Stats - First Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
           {/* Cash Payments */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-3 sm:p-5">
@@ -226,6 +246,83 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
           </div>
         </div>
 
+        {/* Stats - Second Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          {/* Stock Summary */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-3 sm:p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Package className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500" />
+                </div>
+                <div className="ml-3 sm:ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Stock Summary</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">
+                      {formatCurrency(stats.stockValue, 'AED')}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Total Sales Revenue */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-3 sm:p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
+                </div>
+                <div className="ml-3 sm:ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Sales Revenue</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">
+                      {formatCurrency(stats.totalSaleValue, 'AED')}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Average Days to Sell */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-3 sm:p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Target className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
+                </div>
+                <div className="ml-3 sm:ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Avg Days to Sell</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">
+                      {Math.round(stats.avgDaysToSell)} days
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Sales */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-3 sm:p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-rose-500" />
+                </div>
+                <div className="ml-3 sm:ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Monthly Sales</dt>
+                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.monthlySales}</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Filters */}
         <div className="bg-white shadow rounded-lg mb-6">
           <div className="px-4 py-5 sm:p-6">
@@ -289,66 +386,72 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
 
         {/* Additional Dashboard Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Quick Actions & Alerts */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Quick Actions */}
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6 border-b border-gray-200">
-                <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900">Quick Actions</h3>
-              </div>
-              <div className="px-3 py-4 sm:px-4 sm:py-5 lg:p-6">
-                <div className="space-y-2 sm:space-y-3">
-                  <button
-                    onClick={() => setShowAddModal(true)}
-                    className="w-full flex items-center justify-center px-3 py-2.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 touch-manipulation"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Add New Vehicle</span>
-                    <span className="sm:hidden">Add Vehicle</span>
-                  </button>
-                  <button
-                    onClick={() => setShowAnalyticsModal(true)}
-                    className="w-full flex items-center justify-center px-3 py-2.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 touch-manipulation"
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">View Analytics</span>
-                    <span className="sm:hidden">Analytics</span>
-                  </button>
-                </div>
-              </div>
+          {/* Business Statistics */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6 border-b border-gray-200">
+              <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900">Business Statistics</h3>
             </div>
-
-            {/* Key Metrics */}
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6 border-b border-gray-200">
-                <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900">Key Metrics</h3>
-              </div>
-              <div className="px-3 py-4 sm:px-4 sm:py-5 lg:p-6">
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-gray-500 truncate">Avg Profit per Sale</span>
-                    <span className="text-xs sm:text-sm font-medium text-gray-900 ml-2">
-                      {stats.sold > 0 ? formatCurrency(stats.totalProfit / stats.sold, 'AED') : formatCurrency(0, 'AED')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-gray-500">Success Rate</span>
-                    <span className="text-xs sm:text-sm font-medium text-gray-900">
-                      {stats.totalCars > 0 ? Math.round((stats.sold / stats.totalCars) * 100) : 0}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-gray-500">Cars for Sale</span>
-                    <span className="text-xs sm:text-sm font-medium text-blue-600">{stats.forSale}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-gray-500">In Transit</span>
-                    <span className="text-xs sm:text-sm font-medium text-yellow-600">{stats.inTransit}</span>
-                  </div>
+            <div className="px-3 py-4 sm:px-4 sm:py-5 lg:p-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500 truncate">Total Inventory Value</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900 ml-2">
+                    {formatCurrency(stats.totalInventoryValue, 'AED')}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500">Profit Margin</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">
+                    {stats.totalSaleValue > 0 ? Math.round((stats.totalProfit / stats.totalSaleValue) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500">Cash vs Bank Ratio</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">
+                    {stats.totalSaleValue > 0 ? Math.round((stats.cashPayments / stats.totalSaleValue) * 100) : 0}% Cash
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500">Inventory Turnover</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">
+                    {stats.unsoldCars > 0 ? Math.round(stats.sold / stats.unsoldCars * 100) / 100 : 0}x
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Key Metrics */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6 border-b border-gray-200">
+              <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900">Key Metrics</h3>
+            </div>
+            <div className="px-3 py-4 sm:px-4 sm:py-5 lg:p-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500 truncate">Avg Profit per Sale</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900 ml-2">
+                    {stats.sold > 0 ? formatCurrency(stats.totalProfit / stats.sold, 'AED') : formatCurrency(0, 'AED')}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500">Success Rate</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">
+                    {stats.totalCars > 0 ? Math.round((stats.sold / stats.totalCars) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500">Cars for Sale</span>
+                  <span className="text-xs sm:text-sm font-medium text-blue-600">{stats.forSale}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-500">In Transit</span>
+                  <span className="text-xs sm:text-sm font-medium text-yellow-600">{stats.inTransit}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
 
         {/* Cars Table */}
