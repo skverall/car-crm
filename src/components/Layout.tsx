@@ -15,14 +15,15 @@ import {
   X,
   CreditCard,
   Package,
-  Ship
+  Ship,
+  Banknote
 } from 'lucide-react'
 import { UserProfile } from '@/lib/types/database'
 
 interface LayoutProps {
   children: React.ReactNode
-  currentPage: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts'
-  onPageChange: (page: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts') => void
+  currentPage: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts'
+  onPageChange: (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts') => void
   userProfile?: UserProfile | null
 }
 
@@ -58,6 +59,7 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
         icon: userProfile?.role === 'exporter' ? Package : CarIcon
       },
       { id: 'finance', name: 'Finance', icon: DollarSign },
+      { id: 'cash', name: 'Cash & Bank', icon: Banknote },
       { id: 'debts', name: 'Debts', icon: CreditCard },
       { id: 'customers', name: 'Customers', icon: Users },
     ]

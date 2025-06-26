@@ -6,17 +6,18 @@ import Dashboard from './Dashboard'
 import ExporterDashboard from './ExporterDashboard'
 import InventoryPage from './InventoryPage'
 import FinancePage from './FinancePage'
+import CashManagementPage from './CashManagementPage'
 import DebtsPage from './DebtsPage'
 import CustomersPage from './CustomersPage'
 import DebugUserInfo from './DebugUserInfo'
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function MainApp() {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts'>('dashboard')
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts'>('dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const { profile, loading } = useUserProfile()
 
-  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts') => {
+  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts') => {
     setCurrentPage(page)
   }
 
@@ -36,6 +37,8 @@ export default function MainApp() {
         return <InventoryPage key={`inventory-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'finance':
         return <FinancePage key={`finance-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+      case 'cash':
+        return <CashManagementPage key={`cash-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'customers':
         return <CustomersPage key={`customers-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'debts':
