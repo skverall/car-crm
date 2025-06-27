@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { FinancialAccount, CashTransaction, AccountType, TransactionType } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatRelativeTime } from '@/lib/utils'
 import {
   Plus,
   Wallet,
@@ -405,6 +405,9 @@ export default function CashManagementPage({ onDataUpdate }: CashManagementPageP
                             Ref: {transaction.reference_number}
                           </div>
                         )}
+                        <div className="text-xs text-gray-400">
+                          Added {formatRelativeTime(transaction.created_at)}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">

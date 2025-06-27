@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Debt } from '@/lib/types/debt'
 import { formatCurrency } from '@/lib/utils/currency'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatRelativeTime } from '@/lib/utils'
 import { 
   X, 
   Edit, 
@@ -331,6 +331,11 @@ export default function DebtDetailModal({ isOpen, onClose, debtId, onDebtUpdated
                   <p className="text-xs text-gray-400">VIN: {debt.cars.vin}</p>
                 </div>
               )}
+
+              <div>
+                <p className="text-sm text-gray-500">Created</p>
+                <p className="font-medium">{formatRelativeTime(debt.created_at)}</p>
+              </div>
             </div>
           </div>
         )}

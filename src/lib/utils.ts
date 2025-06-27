@@ -91,3 +91,42 @@ export function debounce<T extends (...args: any[]) => any>(
     timeout = setTimeout(() => func(...args), wait)
   }
 }
+
+export function formatRelativeTime(date: string | Date): string {
+  const now = new Date()
+  const targetDate = new Date(date)
+  const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000)
+
+  // Handle future dates (shouldn't happen but just in case)
+  if (diffInSeconds < 0) {
+    return formatDate(targetDate)
+  }
+
+  // Less than 60 seconds: "X seconds ago"
+  if (diffInSeconds < 60) {
+    return diffInSeconds <= 1 ? '1 second ago' : `${diffInSeconds} seconds ago`
+  }
+
+  // Less than 60 minutes: "X minutes ago"
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) {
+    return diffInMinutes === 1 ? '1 minute ago' : `${diffInMinutes} minutes ago`
+  }
+
+  // Same day: "X hours ago"
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  const isToday = now.toDateString() === targetDate.toDateString()
+  if (isToday && diffInHours < 24) {
+    return diffInHours === 1 ? '1 hour ago' : `${diffInHours} hours ago`
+  }
+
+  // Yesterday
+  const yesterday = new Date(now)
+  yesterday.setDate(yesterday.getDate() - 1)
+  if (yesterday.toDateString() === targetDate.toDateString()) {
+    return 'yesterday'
+  }
+
+  // Older entries: show actual date
+  return formatDate(targetDate)
+}

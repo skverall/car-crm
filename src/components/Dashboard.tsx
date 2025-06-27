@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
-import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
+import { getStatusColor, getStatusLabel, formatDate, formatRelativeTime } from '@/lib/utils'
 import {
   Car as CarIcon,
   DollarSign,
@@ -481,6 +481,9 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
                       </div>
                       <p className="text-xs sm:text-sm text-gray-500 font-mono truncate">
                         VIN: {car.vin}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Added {formatRelativeTime(car.created_at)}
                       </p>
                     </div>
                   </div>

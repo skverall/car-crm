@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CashTransaction } from '@/lib/types/database'
 import { formatCurrency } from '@/lib/utils/currency'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatRelativeTime } from '@/lib/utils'
 import { X, Edit, Trash2 } from 'lucide-react'
 
 interface TransactionDetailModalProps {
@@ -271,11 +271,11 @@ export default function TransactionDetailModal({
               <dl className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <dt className="text-gray-500">Created</dt>
-                  <dd className="text-gray-900">{formatDate(transaction.created_at)}</dd>
+                  <dd className="text-gray-900">{formatRelativeTime(transaction.created_at)}</dd>
                 </div>
                 <div>
                   <dt className="text-gray-500">Last Updated</dt>
-                  <dd className="text-gray-900">{formatDate(transaction.updated_at)}</dd>
+                  <dd className="text-gray-900">{formatRelativeTime(transaction.updated_at)}</dd>
                 </div>
               </dl>
             </div>

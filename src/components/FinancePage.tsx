@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Car, Expense, ExpenseCategory } from '@/lib/types/database'
 import { formatCurrency, convertCurrency, getAllCurrencies } from '@/lib/utils/currency'
-import { getCategoryLabel, formatDate } from '@/lib/utils'
+import { getCategoryLabel, formatDate, formatRelativeTime } from '@/lib/utils'
 import {
   Plus,
   DollarSign,
@@ -282,6 +282,9 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
                     )}
                     <p className="text-xs text-gray-400">
                       {formatDate(expense.expense_date)}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Added {formatRelativeTime(expense.created_at)}
                     </p>
                   </div>
                 </div>
