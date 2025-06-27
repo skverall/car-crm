@@ -310,7 +310,7 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
                       </p>
                     )}
                     <p className="text-xs text-gray-400">
-                      Added {formatRelativeTime(debt.created_at)}
+                      Added {debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}
                     </p>
                   </div>
                 </div>

@@ -271,11 +271,11 @@ export default function TransactionDetailModal({
               <dl className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <dt className="text-gray-500">Created</dt>
-                  <dd className="text-gray-900">{formatRelativeTime(transaction.created_at)}</dd>
+                  <dd className="text-gray-900">{transaction.created_at ? formatRelativeTime(transaction.created_at) : 'Unknown'}</dd>
                 </div>
                 <div>
                   <dt className="text-gray-500">Last Updated</dt>
-                  <dd className="text-gray-900">{formatRelativeTime(transaction.updated_at)}</dd>
+                  <dd className="text-gray-900">{transaction.updated_at ? formatRelativeTime(transaction.updated_at) : 'Unknown'}</dd>
                 </div>
               </dl>
             </div>

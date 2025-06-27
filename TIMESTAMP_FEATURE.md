@@ -74,9 +74,12 @@ All relevant tables already have timestamp fields:
 
 ## Technical Notes
 - Function handles edge cases like future dates gracefully
+- Robust error handling for null, undefined, and invalid dates
 - Uses browser's `Intl.DateTimeFormat` for consistent date formatting
 - Timezone-aware calculations using JavaScript Date objects
 - No external dependencies required
+- Components include safety checks before calling formatRelativeTime
+- Comprehensive logging for debugging invalid date issues
 
 ## Testing
 The implementation has been verified for:

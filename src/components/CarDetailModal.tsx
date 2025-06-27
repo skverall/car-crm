@@ -402,7 +402,7 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
                             {formatDate(expense.expense_date)}
                           </p>
                           <p className="text-xs text-gray-400">
-                            Added {formatRelativeTime(expense.created_at)}
+                            Added {expense.created_at ? formatRelativeTime(expense.created_at) : 'Unknown'}
                           </p>
                         </div>
                       </div>

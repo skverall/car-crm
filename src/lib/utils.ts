@@ -6,21 +6,39 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: string | Date): string {
+  if (!date) {
+    return 'Unknown'
+  }
+
+  const targetDate = new Date(date)
+  if (isNaN(targetDate.getTime())) {
+    return 'Invalid date'
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  }).format(new Date(date))
+  }).format(targetDate)
 }
 
 export function formatDateTime(date: string | Date): string {
+  if (!date) {
+    return 'Unknown'
+  }
+
+  const targetDate = new Date(date)
+  if (isNaN(targetDate.getTime())) {
+    return 'Invalid date'
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(new Date(date))
+  }).format(targetDate)
 }
 
 export function calculateDaysBetween(startDate: string | Date, endDate: string | Date): number {
@@ -92,41 +110,65 @@ export function debounce<T extends (...args: any[]) => any>(
   }
 }
 
-export function formatRelativeTime(date: string | Date): string {
-  const now = new Date()
-  const targetDate = new Date(date)
-  const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000)
+export function formatRelativeTime(date: string | Date | null | undefined): string {
+  try {
+    // Handle null, undefined, or invalid dates
+    if (!date || date === null || date === undefined) {
+      console.warn('Null/undefined date passed to formatRelativeTime:', date)
+      return 'Unknown'
+    }
 
-  // Handle future dates (shouldn't happen but just in case)
-  if (diffInSeconds < 0) {
+    // Handle empty strings
+    if (typeof date === 'string' && date.trim() === '') {
+      console.warn('Empty string date passed to formatRelativeTime')
+      return 'Unknown'
+    }
+
+    const now = new Date()
+    const targetDate = new Date(date)
+
+    // Check if the date is valid
+    if (isNaN(targetDate.getTime())) {
+      console.warn('Invalid date passed to formatRelativeTime:', date, 'Type:', typeof date)
+      return 'Invalid date'
+    }
+
+    const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000)
+
+    // Handle future dates (shouldn't happen but just in case)
+    if (diffInSeconds < 0) {
+      return formatDate(targetDate)
+    }
+
+    // Less than 60 seconds: "X seconds ago"
+    if (diffInSeconds < 60) {
+      return diffInSeconds <= 1 ? '1 second ago' : `${diffInSeconds} seconds ago`
+    }
+
+    // Less than 60 minutes: "X minutes ago"
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) {
+      return diffInMinutes === 1 ? '1 minute ago' : `${diffInMinutes} minutes ago`
+    }
+
+    // Same day: "X hours ago"
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    const isToday = now.toDateString() === targetDate.toDateString()
+    if (isToday && diffInHours < 24) {
+      return diffInHours === 1 ? '1 hour ago' : `${diffInHours} hours ago`
+    }
+
+    // Yesterday
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+    if (yesterday.toDateString() === targetDate.toDateString()) {
+      return 'yesterday'
+    }
+
+    // Older entries: show actual date
     return formatDate(targetDate)
+  } catch (error) {
+    console.error('Error in formatRelativeTime:', error, 'Date:', date)
+    return 'Unknown'
   }
-
-  // Less than 60 seconds: "X seconds ago"
-  if (diffInSeconds < 60) {
-    return diffInSeconds <= 1 ? '1 second ago' : `${diffInSeconds} seconds ago`
-  }
-
-  // Less than 60 minutes: "X minutes ago"
-  const diffInMinutes = Math.floor(diffInSeconds / 60)
-  if (diffInMinutes < 60) {
-    return diffInMinutes === 1 ? '1 minute ago' : `${diffInMinutes} minutes ago`
-  }
-
-  // Same day: "X hours ago"
-  const diffInHours = Math.floor(diffInMinutes / 60)
-  const isToday = now.toDateString() === targetDate.toDateString()
-  if (isToday && diffInHours < 24) {
-    return diffInHours === 1 ? '1 hour ago' : `${diffInHours} hours ago`
-  }
-
-  // Yesterday
-  const yesterday = new Date(now)
-  yesterday.setDate(yesterday.getDate() - 1)
-  if (yesterday.toDateString() === targetDate.toDateString()) {
-    return 'yesterday'
-  }
-
-  // Older entries: show actual date
-  return formatDate(targetDate)
 }

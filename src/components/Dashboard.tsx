@@ -483,7 +483,7 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
                         VIN: {car.vin}
                       </p>
                       <p className="text-xs text-gray-400">
-                        Added {formatRelativeTime(car.created_at)}
+                        Added {car.created_at ? formatRelativeTime(car.created_at) : 'Unknown'}
                       </p>
                     </div>
                   </div>

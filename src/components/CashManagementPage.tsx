@@ -406,7 +406,7 @@ export default function CashManagementPage({ onDataUpdate }: CashManagementPageP
                           </div>
                         )}
                         <div className="text-xs text-gray-400">
-                          Added {formatRelativeTime(transaction.created_at)}
+                          Added {transaction.created_at ? formatRelativeTime(transaction.created_at) : 'Unknown'}
                         </div>
                       </div>
                     </div>

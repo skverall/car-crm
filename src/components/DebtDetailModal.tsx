@@ -334,7 +334,7 @@ export default function DebtDetailModal({ isOpen, onClose, debtId, onDebtUpdated
 
               <div>
                 <p className="text-sm text-gray-500">Created</p>
-                <p className="font-medium">{formatRelativeTime(debt.created_at)}</p>
+                <p className="font-medium">{debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}</p>
               </div>
             </div>
           </div>
