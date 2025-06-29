@@ -7,6 +7,34 @@ import { validateVIN, formatVIN } from '@/lib/utils'
 import { getAllCurrencies } from '@/lib/utils/currency'
 import { X } from 'lucide-react'
 
+// Car manufacturers list
+const CAR_MANUFACTURERS = [
+  'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',
+  'Chevrolet', 'Chrysler', 'Citroën', 'Dodge', 'Ferrari', 'Fiat', 'Ford', 'Genesis',
+  'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini',
+  'Land Rover', 'Lexus', 'Lincoln', 'Maserati', 'Mazda', 'McLaren', 'Mercedes-Benz',
+  'MINI', 'Mitsubishi', 'Nissan', 'Peugeot', 'Porsche', 'Ram', 'Renault', 'Rolls-Royce',
+  'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+].sort()
+
+// Standard car colors
+const CAR_COLORS = [
+  'White', 'Black', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown',
+  'Yellow', 'Orange', 'Purple', 'Gold', 'Beige', 'Maroon', 'Navy', 'Pink'
+].sort()
+
+// Generate years from 1990 to current year + 1
+const generateYears = () => {
+  const currentYear = new Date().getFullYear()
+  const years = []
+  for (let year = currentYear + 1; year >= 1990; year--) {
+    years.push(year)
+  }
+  return years
+}
+
+const AVAILABLE_YEARS = generateYears()
+
 interface AddCarModalProps {
   isOpen: boolean
   onClose: () => void
@@ -25,15 +53,15 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     year: new Date().getFullYear(),
     color: '',
     engine_size: '',
-    fuel_type: '',
-    transmission: '',
+    fuel_type: 'gasoline',
+    transmission: 'automatic',
     mileage: '',
     purchase_price: '',
     purchase_currency: 'AED' as CurrencyType,
     purchase_date: new Date().toISOString().split('T')[0],
     purchase_location: '',
-    dealer: '',
-    status: 'in_transit' as CarStatus,
+    dealer: 'Doniyor',
+    status: 'for_sale' as CarStatus,
     location: '',
     notes: ''
   })
@@ -107,15 +135,15 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         year: new Date().getFullYear(),
         color: '',
         engine_size: '',
-        fuel_type: '',
-        transmission: '',
+        fuel_type: 'gasoline',
+        transmission: 'automatic',
         mileage: '',
         purchase_price: '',
         purchase_currency: 'AED',
         purchase_date: new Date().toISOString().split('T')[0],
         purchase_location: '',
-        dealer: '',
-        status: 'in_transit',
+        dealer: 'Doniyor',
+        status: 'for_sale',
         location: '',
         notes: ''
       })
@@ -188,15 +216,18 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Make *</label>
-              <input
-                type="text"
+              <select
                 name="make"
                 required
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2.5 sm:py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base sm:text-sm text-gray-900 bg-white"
                 value={formData.make}
                 onChange={handleInputChange}
-                placeholder="e.g., Toyota"
-              />
+              >
+                <option value="">Select Make</option>
+                {CAR_MANUFACTURERS.map(make => (
+                  <option key={make} value={make}>{make}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Model *</label>
@@ -216,27 +247,31 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Year *</label>
-              <input
-                type="number"
+              <select
                 name="year"
                 required
-                min="1900"
-                max={new Date().getFullYear() + 1}
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 value={formData.year}
                 onChange={handleInputChange}
-              />
+              >
+                {AVAILABLE_YEARS.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Color</label>
-              <input
-                type="text"
+              <select
                 name="color"
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 value={formData.color}
                 onChange={handleInputChange}
-                placeholder="e.g., White"
-              />
+              >
+                <option value="">Select Color</option>
+                {CAR_COLORS.map(color => (
+                  <option key={color} value={color}>{color}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -261,11 +296,10 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
                 value={formData.fuel_type}
                 onChange={handleInputChange}
               >
-                <option value="">Select</option>
-                <option value="Gasoline">Gasoline</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Electric">Electric</option>
+                <option value="gasoline">Gasoline</option>
+                <option value="diesel">Diesel</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="electric">Electric</option>
               </select>
             </div>
             <div>
@@ -276,10 +310,9 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
                 value={formData.transmission}
                 onChange={handleInputChange}
               >
-                <option value="">Select</option>
-                <option value="Manual">Manual</option>
-                <option value="Automatic">Automatic</option>
-                <option value="CVT">CVT</option>
+                <option value="automatic">Automatic</option>
+                <option value="manual">Manual</option>
+                <option value="cvt">CVT</option>
               </select>
             </div>
           </div>
@@ -368,8 +401,8 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
                 value={formData.status}
                 onChange={handleInputChange}
               >
-                <option value="in_transit">In Transit</option>
                 <option value="for_sale">For Sale</option>
+                <option value="in_transit">In Transit</option>
                 <option value="reserved">Reserved</option>
                 <option value="sold">Sold</option>
               </select>
