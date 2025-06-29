@@ -9,7 +9,7 @@ interface TableProps {
 export function Table({ children, className = '' }: TableProps) {
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="min-w-full">
         {children}
       </table>
     </div>
@@ -23,7 +23,7 @@ interface TableHeaderProps {
 
 export function TableHeader({ children, className = '' }: TableHeaderProps) {
   return (
-    <thead className={`bg-gray-50 ${className}`}>
+    <thead className={`bg-gradient-to-r from-indigo-50 to-purple-50 ${className}`}>
       {children}
     </thead>
   )
@@ -36,7 +36,7 @@ interface TableBodyProps {
 
 export function TableBody({ children, className = '' }: TableBodyProps) {
   return (
-    <tbody className={`bg-white divide-y divide-gray-200 ${className}`}>
+    <tbody className={`bg-white divide-y divide-gray-100 ${className}`}>
       {children}
     </tbody>
   )
@@ -50,8 +50,8 @@ interface TableRowProps {
 
 export function TableRow({ children, className = '', onClick }: TableRowProps) {
   return (
-    <tr 
-      className={`hover:bg-gray-50 transition-colors ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    <tr
+      className={`hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
     >
       {children}
@@ -73,7 +73,7 @@ export function TableCell({ children, className = '', align = 'left' }: TableCel
   }[align]
 
   return (
-    <td className={`px-6 py-4 whitespace-nowrap text-sm ${alignClass} ${className}`}>
+    <td className={`px-6 py-5 whitespace-nowrap text-sm ${alignClass} ${className}`}>
       {children}
     </td>
   )
@@ -106,18 +106,18 @@ export function SortableHeader({
   const direction = isActive ? currentSort.direction : null
 
   return (
-    <th 
-      className={`px-6 py-3 ${alignClass} text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors select-none ${className}`}
+    <th
+      className={`px-6 py-4 ${alignClass} text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-indigo-100 hover:to-purple-100 transition-all duration-200 select-none ${className}`}
       onClick={() => onSort(sortKey)}
     >
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-2">
         <span>{children}</span>
         <div className="flex flex-col">
-          <ChevronUp 
-            className={`h-3 w-3 ${isActive && direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`}
+          <ChevronUp
+            className={`h-3 w-3 ${isActive && direction === 'asc' ? 'text-indigo-600' : 'text-gray-400'}`}
           />
-          <ChevronDown 
-            className={`h-3 w-3 -mt-1 ${isActive && direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`}
+          <ChevronDown
+            className={`h-3 w-3 -mt-1 ${isActive && direction === 'desc' ? 'text-indigo-600' : 'text-gray-400'}`}
           />
         </div>
       </div>
@@ -139,7 +139,7 @@ export function TableHeaderCell({ children, className = '', align = 'left' }: Ta
   }[align]
 
   return (
-    <th className={`px-6 py-3 ${alignClass} text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}>
+    <th className={`px-6 py-4 ${alignClass} text-xs font-semibold text-gray-700 uppercase tracking-wider ${className}`}>
       {children}
     </th>
   )

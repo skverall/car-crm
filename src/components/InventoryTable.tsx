@@ -247,7 +247,7 @@ export default function InventoryTable({
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden lg:block bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="hidden lg:block modern-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -257,7 +257,7 @@ export default function InventoryTable({
                 currentSort={sortConfig}
                 onSort={handleSort}
               >
-                Make/Model
+                Vehicle
               </SortableHeader>
               <SortableHeader
                 sortKey="year"
@@ -288,7 +288,7 @@ export default function InventoryTable({
                 onSort={handleSort}
                 align="right"
               >
-                Purchase Price
+                Purchase
               </SortableHeader>
               <SortableHeader
                 sortKey="total_cost"
@@ -321,46 +321,59 @@ export default function InventoryTable({
             {filteredAndSortedCars.map((car) => (
               <TableRow key={car.id}>
                 <TableCell>
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                  <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm">
+                    <ImageIcon className="h-7 w-7 text-gray-500" />
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center">
-                    <CarIcon className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+                    <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                      <CarIcon className="h-5 w-5 text-white" />
+                    </div>
                     <div>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-semibold text-gray-900 text-base">
                         {car.make} {car.model}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {car.year}
                       </div>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell align="center" className="font-medium">
+                <TableCell align="center" className="font-semibold text-gray-700">
                   {car.year}
                 </TableCell>
-                <TableCell className="font-mono text-sm">
+                <TableCell className="font-mono text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-1">
                   {car.vin}
                 </TableCell>
                 <TableCell align="center">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(car.status)}`}>
+                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusColor(car.status)}`}>
                     {getStatusLabel(car.status)}
                   </span>
                 </TableCell>
-                <TableCell align="right" className="font-medium">
+                <TableCell align="right" className="font-semibold text-gray-800">
                   {formatCurrency(car.purchase_price, car.purchase_currency)}
                 </TableCell>
-                <TableCell align="right" className="font-medium">
+                <TableCell align="right" className="font-semibold text-gray-800">
                   {formatCurrency(calculateTotalCost(car), 'AED')}
                 </TableCell>
-                <TableCell align="right" className="font-medium">
-                  {car.sale_price ? formatCurrency(car.sale_price, car.sale_currency) : '-'}
+                <TableCell align="right" className="font-semibold text-gray-800">
+                  {car.sale_price ? formatCurrency(car.sale_price, car.sale_currency) : (
+                    <span className="text-gray-400">—</span>
+                  )}
                 </TableCell>
                 <TableCell align="right">
                   {car.profit_aed !== null ? (
-                    <span className={`font-medium ${car.profit_aed >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`inline-flex items-center px-3 py-1.5 rounded-lg font-semibold text-sm ${
+                      car.profit_aed >= 0
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
                       {formatCurrency(car.profit_aed, 'AED')}
-                    </span>
-                  ) : '-'}
+                    </div>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
                 </TableCell>
                 <TableCell align="center">
                   <div className="flex items-center justify-center space-x-2">
@@ -369,7 +382,7 @@ export default function InventoryTable({
                         e.stopPropagation()
                         onCarClick(car.id)
                       }}
-                      className="text-blue-600 hover:text-blue-800 p-1 rounded touch-manipulation"
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2 rounded-lg transition-all duration-200 hover:scale-105"
                       title="View Details"
                     >
                       <Eye className="h-4 w-4" />
@@ -380,7 +393,7 @@ export default function InventoryTable({
                           e.stopPropagation()
                           onEditCar(car.id)
                         }}
-                        className="text-gray-600 hover:text-gray-800 p-1 rounded touch-manipulation"
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition-all duration-200 hover:scale-105"
                         title="Edit"
                       >
                         <Edit className="h-4 w-4" />
@@ -392,7 +405,7 @@ export default function InventoryTable({
                           e.stopPropagation()
                           onDeleteCar(car.id)
                         }}
-                        className="text-red-600 hover:text-red-800 p-1 rounded touch-manipulation"
+                        className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-lg transition-all duration-200 hover:scale-105"
                         title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -411,61 +424,63 @@ export default function InventoryTable({
         {filteredAndSortedCars.map((car) => (
           <div
             key={car.id}
-            className="bg-white shadow rounded-lg p-4 space-y-3 touch-manipulation"
+            className="modern-card p-6 space-y-4 touch-manipulation cursor-pointer hover:shadow-lg transition-all duration-200"
             onClick={() => onCarClick(car.id)}
           >
             <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <ImageIcon className="h-6 w-6 text-gray-400" />
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <ImageIcon className="h-8 w-8 text-gray-500" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center space-x-2">
-                    <CarIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <h3 className="text-sm font-medium text-gray-900 truncate">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <CarIcon className="h-4 w-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">
                       {car.year} {car.make} {car.model}
                     </h3>
                   </div>
-                  <p className="text-xs text-gray-500 font-mono mt-1">{car.vin}</p>
+                  <p className="text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">{car.vin}</p>
                 </div>
               </div>
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(car.status)}`}>
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusColor(car.status)}`}>
                 {getStatusLabel(car.status)}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-gray-500">Purchase:</span>
-                <div className="font-medium">{formatCurrency(car.purchase_price, car.purchase_currency)}</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Purchase</span>
+                <div className="font-semibold text-gray-800 mt-1">{formatCurrency(car.purchase_price, car.purchase_currency)}</div>
               </div>
-              <div>
-                <span className="text-gray-500">Total Cost:</span>
-                <div className="font-medium">{formatCurrency(calculateTotalCost(car), 'AED')}</div>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Total Cost</span>
+                <div className="font-semibold text-gray-800 mt-1">{formatCurrency(calculateTotalCost(car), 'AED')}</div>
               </div>
               {car.sale_price && (
                 <>
-                  <div>
-                    <span className="text-gray-500">Sale Price:</span>
-                    <div className="font-medium">{formatCurrency(car.sale_price, car.sale_currency)}</div>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <span className="text-xs text-blue-600 uppercase tracking-wide font-medium">Sale Price</span>
+                    <div className="font-semibold text-blue-800 mt-1">{formatCurrency(car.sale_price, car.sale_currency)}</div>
                   </div>
-                  <div>
-                    <span className="text-gray-500">Profit:</span>
-                    <div className={`font-medium ${car.profit_aed && car.profit_aed >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {car.profit_aed !== null ? formatCurrency(car.profit_aed, 'AED') : '-'}
+                  <div className={`p-3 rounded-lg ${car.profit_aed && car.profit_aed >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                    <span className={`text-xs uppercase tracking-wide font-medium ${car.profit_aed && car.profit_aed >= 0 ? 'text-green-600' : 'text-red-600'}`}>Profit</span>
+                    <div className={`font-semibold mt-1 ${car.profit_aed && car.profit_aed >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                      {car.profit_aed !== null ? formatCurrency(car.profit_aed, 'AED') : '—'}
                     </div>
                   </div>
                 </>
               )}
             </div>
 
-            <div className="flex items-center justify-end space-x-3 pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   onCarClick(car.id)
                 }}
-                className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium touch-manipulation py-2 px-3 rounded"
+                className="flex items-center space-x-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
               >
                 <Eye className="h-4 w-4" />
                 <span>View</span>
@@ -476,7 +491,7 @@ export default function InventoryTable({
                     e.stopPropagation()
                     onEditCar(car.id)
                   }}
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 text-sm font-medium touch-manipulation py-2 px-3 rounded"
+                  className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
                 >
                   <Edit className="h-4 w-4" />
                   <span>Edit</span>
@@ -488,7 +503,7 @@ export default function InventoryTable({
                     e.stopPropagation()
                     onDeleteCar(car.id)
                   }}
-                  className="flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium touch-manipulation py-2 px-3 rounded"
+                  className="flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span>Delete</span>
@@ -501,13 +516,15 @@ export default function InventoryTable({
 
       {/* Empty State */}
       {filteredAndSortedCars.length === 0 && (
-        <div className="text-center py-12">
-          <CarIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No vehicles found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="modern-card text-center py-16">
+          <div className="w-20 h-20 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CarIcon className="h-10 w-10 text-indigo-600" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">No vehicles found</h3>
+          <p className="text-gray-600 max-w-md mx-auto">
             {activeFiltersCount > 0
-              ? 'Try adjusting your search or filter criteria.'
-              : 'Get started by adding your first vehicle.'}
+              ? 'Try adjusting your search or filter criteria to find the vehicles you\'re looking for.'
+              : 'Get started by adding your first vehicle to the inventory.'}
           </p>
         </div>
       )}
