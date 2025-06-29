@@ -4,6 +4,9 @@ export type CurrencyType = 'AED' | 'USD' | 'EUR' | 'GBP'
 export type UserRole = 'importer' | 'exporter'
 export type PaymentMethod = 'cash' | 'bank_card'
 
+// Market Prices Types
+export type VehicleCondition = 'excellent' | 'good' | 'fair' | 'poor'
+
 // Cash Management Types
 export type TransactionType = 'deposit' | 'withdrawal' | 'transfer' | 'car_sale_payment' | 'car_purchase_payment' | 'expense_payment' | 'debt_payment' | 'other'
 export type AccountType = 'cash' | 'bank_checking' | 'bank_savings' | 'credit_card' | 'other'
@@ -195,6 +198,23 @@ export interface UserProfile {
   updated_at: string
 }
 
+export interface MarketPrice {
+  id: string
+  user_id: string
+  make: string
+  model: string
+  year: number
+  mileage?: number
+  condition: VehicleCondition
+  market_price: number
+  currency: CurrencyType
+  source?: string
+  notes?: string
+  date_updated: string
+  created_at: string
+  updated_at: string
+}
+
 // Database schema type for Supabase
 export interface Database {
   public: {
@@ -244,6 +264,11 @@ export interface Database {
         Insert: Omit<UserProfile, 'created_at' | 'updated_at'>
         Update: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>
       }
+      market_prices: {
+        Row: MarketPrice
+        Insert: Omit<MarketPrice, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<MarketPrice, 'id' | 'created_at' | 'updated_at'>>
+      }
     }
     Views: {
       car_profit_analysis: {
@@ -255,6 +280,7 @@ export interface Database {
       car_status: CarStatus
       expense_category: ExpenseCategory
       currency_type: CurrencyType
+      vehicle_condition: VehicleCondition
     }
   }
 }

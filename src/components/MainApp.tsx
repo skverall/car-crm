@@ -9,15 +9,16 @@ import FinancePage from './FinancePage'
 import CashManagementPage from './CashManagementPage'
 import DebtsPage from './DebtsPage'
 import CustomersPage from './CustomersPage'
+import MarketPricesPage from './MarketPricesPage'
 import DebugUserInfo from './DebugUserInfo'
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function MainApp() {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts'>('dashboard')
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices'>('dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const { profile, loading } = useUserProfile()
 
-  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts') => {
+  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices') => {
     setCurrentPage(page)
   }
 
@@ -43,6 +44,8 @@ export default function MainApp() {
         return <CustomersPage key={`customers-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'debts':
         return <DebtsPage key={`debts-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+      case 'market-prices':
+        return <MarketPricesPage key={`market-prices-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       default:
         if (profile?.role === 'exporter') {
           return <ExporterDashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />
