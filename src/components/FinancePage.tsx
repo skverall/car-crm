@@ -111,7 +111,10 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="modern-card p-8 flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading financial data...</p>
+        </div>
       </div>
     )
   }
@@ -119,70 +122,67 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Finance Management</h1>
-        <p className="text-gray-600">Track all expenses and financial operations</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Finance Management</h1>
+        <p className="text-gray-600 text-lg">Track all expenses and financial operations</p>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CarIcon className="h-6 w-6 text-blue-400" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-400 to-red-600 rounded-xl flex items-center justify-center">
+                <CarIcon className="h-6 w-6 text-white" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Car Expenses</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(totalCarExpenses, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Car Expenses</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {formatCurrency(totalCarExpenses, 'AED')}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">4 operations</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Receipt className="h-6 w-6 text-green-400" />
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-pink-600 rounded-xl flex items-center justify-center">
+                <Receipt className="h-6 w-6 text-white" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">General Expenses</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(totalOtherExpenses, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">General Expenses</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {formatCurrency(totalOtherExpenses, 'AED')}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">2 operations</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <DollarSign className="h-6 w-6 text-red-400" />
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-white" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(totalCarExpenses + totalOtherExpenses, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {formatCurrency(totalCarExpenses + totalOtherExpenses, 'AED')}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">6 operations total</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 mb-8">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'car-expenses', name: 'Car Expenses', count: carExpenses.length },
@@ -193,9 +193,9 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
               onClick={() => setActiveTab(tab.id as any)}
               className={`${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-indigo-500 text-indigo-600 bg-indigo-50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
+              } whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg transition-all duration-200`}
             >
               {tab.name} ({tab.count})
             </button>
@@ -204,14 +204,14 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
       </div>
 
       {/* Filters and Add Button */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               type="text"
               placeholder="Search expenses..."
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="pl-12 pr-4 py-3 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -219,7 +219,7 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
         </div>
         <div className="sm:w-48">
           <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -237,59 +237,79 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
         <div className="flex space-x-3">
           <button
             onClick={() => setShowAnalyticsModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
           >
-            <BarChart3 className="h-4 w-4 mr-2" />
+            <BarChart3 className="h-5 w-5 mr-2" />
             Analytics
           </button>
           <button
             onClick={() => setShowAddExpenseModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             Add Expense
           </button>
         </div>
       </div>
 
       {/* Expenses List */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
+      <div className="modern-card">
+        <div className="p-6 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800">Expense History</h3>
+        </div>
+        <div className="divide-y divide-gray-100">
           {(activeTab === 'car-expenses' ? filteredCarExpenses : filteredOtherExpenses).map((expense) => (
-            <li
+            <div
               key={expense.id}
-              className="px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              className="px-6 py-4 hover:bg-gray-50 cursor-pointer transition-all duration-200"
               onClick={() => handleExpenseClick(expense.id)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    {expense.car_id ? (
-                      <CarIcon className="h-5 w-5 text-blue-400" />
-                    ) : (
-                      <Receipt className="h-5 w-5 text-green-400" />
-                    )}
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      expense.car_id
+                        ? 'bg-blue-100'
+                        : expense.category === 'repair'
+                          ? 'bg-red-100'
+                          : expense.category === 'transport'
+                            ? 'bg-blue-100'
+                            : expense.category === 'customs'
+                              ? 'bg-blue-100'
+                              : 'bg-green-100'
+                    }`}>
+                      <span className={`font-semibold text-sm ${
+                        expense.car_id
+                          ? 'text-blue-600'
+                          : expense.category === 'repair'
+                            ? 'text-red-600'
+                            : expense.category === 'transport'
+                              ? 'text-blue-600'
+                              : expense.category === 'customs'
+                                ? 'text-blue-600'
+                                : 'text-green-600'
+                      }`}>
+                        {expense.category === 'repair' ? 'RM' :
+                         expense.category === 'transport' ? 'TR' :
+                         expense.category === 'customs' ? 'CS' :
+                         expense.category.substring(0, 2).toUpperCase()}
+                      </span>
+                    </div>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="font-medium text-gray-800">
                       {getCategoryLabel(expense.category)}
                     </p>
-                    <p className="text-sm text-gray-500">{expense.description}</p>
-                    {expense.cars && (
-                      <p className="text-xs text-gray-400">
-                        {expense.cars.year} {expense.cars.make} {expense.cars.model} - {expense.cars.vin}
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {formatDate(expense.expense_date)}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      Added {expense.created_at ? formatRelativeTime(expense.created_at) : 'Unknown'}
+                    <p className="text-sm text-gray-600">
+                      {expense.cars ?
+                        `${expense.cars.year} ${expense.cars.make} ${expense.cars.model} • ${formatDate(expense.expense_date)}` :
+                        `${expense.description} • ${formatDate(expense.expense_date)}`
+                      }
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="font-bold text-gray-800">
                     {formatCurrency(expense.amount, expense.currency)}
                   </p>
                   {expense.currency !== 'AED' && (
@@ -299,16 +319,18 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
                   )}
                 </div>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
         {(activeTab === 'car-expenses' ? filteredCarExpenses : filteredOtherExpenses).length === 0 && (
-          <div className="text-center py-12">
-            <DollarSign className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No expenses found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || categoryFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria.' 
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <DollarSign className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">No expenses found</h3>
+            <p className="text-gray-600">
+              {searchTerm || categoryFilter !== 'all'
+                ? 'Try adjusting your search or filter criteria.'
                 : 'Get started by adding your first expense.'}
             </p>
           </div>

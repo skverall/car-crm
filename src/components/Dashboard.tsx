@@ -149,174 +149,166 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Overview of your vehicle inventory and business performance</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p className="text-gray-600 text-lg">Overview of your vehicle inventory and business performance</p>
         </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setShowAnalyticsModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
           >
-            <BarChart3 className="h-4 w-4 mr-2" />
+            <BarChart3 className="h-5 w-5 mr-2" />
             Analytics
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             Add Car
           </button>
         </div>
       </div>
         {/* Stats - First Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Cash Payments */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Banknote className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                  <Banknote className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Cash</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.cashPayments, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Cash Payments</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.cashPayments, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">4 operations</p>
               </div>
             </div>
           </div>
 
-          {/* Cars Sold */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
+          {/* General Expenses */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-pink-600 rounded-xl flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Cars Sold</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.sold}</dd>
-                  </dl>
-                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">General Expenses</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.bankPayments, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">2 operations</p>
               </div>
             </div>
           </div>
 
-          {/* Bank/Card Payments */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Bank</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.bankPayments, 'AED')}
-                    </dd>
-                  </dl>
+          {/* Total Expenses */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center">
+                  <TrendingDown className="h-6 w-6 text-white" />
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Reserved Cars */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Reserved Cars</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.reserved}</dd>
-                  </dl>
-                </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.cashPayments + stats.bankPayments, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">6 operations total</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats - Second Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {/* Stock Summary */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Package className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Stock Summary</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.stockValue, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
+        {/* Transaction History Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-800">Transaction History</h2>
+            <div className="flex items-center space-x-4">
+              <button className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm">
+                <Search className="h-4 w-4 mr-2" />
+                Search Transactions
+              </button>
+              <button className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Transaction
+              </button>
             </div>
           </div>
-
-          {/* Total Sales Revenue */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Sales Revenue</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.totalSaleValue, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
+          {/* Transaction List */}
+          <div className="modern-card">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">Recent Operations</h3>
+                <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                  <option>All Categories</option>
+                  <option>Repair</option>
+                  <option>Transport</option>
+                  <option>Customs</option>
+                </select>
               </div>
             </div>
-          </div>
+            <div className="p-6">
+              {/* Sample transaction items matching the design */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                      <span className="text-red-600 font-semibold text-sm">RM</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">Repair</p>
+                      <p className="text-sm text-gray-600">2011 Hyundai Grandeur • 24 June 2025</p>
+                    </div>
+                  </div>
+                  <p className="font-bold text-gray-800">AED 600.00</p>
+                </div>
 
-          {/* Average Days to Sell */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Target className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                      <span className="text-blue-600 font-semibold text-sm">TR</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">Transport</p>
+                      <p className="text-sm text-gray-600">2011 Hyundai Austra M1 • 14 June 2025</p>
+                    </div>
+                  </div>
+                  <p className="font-bold text-gray-800">AED 2,100.00</p>
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Avg Days to Sell</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {Math.round(stats.avgDaysToSell)} days
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Monthly Sales */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-rose-500" />
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                      <span className="text-blue-600 font-semibold text-sm">CS</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">Customs</p>
+                      <p className="text-sm text-gray-600">2011 Hyundai Grandeur • 24 June 2025</p>
+                    </div>
+                  </div>
+                  <p className="font-bold text-gray-800">AED 1,000.00</p>
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Monthly Sales</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.monthlySales}</dd>
-                  </dl>
+
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                      <span className="text-blue-600 font-semibold text-sm">CS</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">Customs</p>
+                      <p className="text-sm text-gray-600">2011 Hyundai Grandeur • 14 June 2025</p>
+                    </div>
+                  </div>
+                  <p className="font-bold text-gray-800">AED 2,100.00</p>
                 </div>
               </div>
             </div>
