@@ -44,6 +44,8 @@ interface AddCarModalProps {
 export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const supabase = createClient()
 
   const [formData, setFormData] = useState({
@@ -118,13 +120,27 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         notes: formData.notes.trim() || null
       }
 
-      const { error } = await supabase
+      const { data: insertedCar, error } = await supabase
         .from('cars')
         .insert([carData])
+        .select()
+        .single()
 
       if (error) {
         console.error('Database error:', error)
         throw new Error(`Failed to add vehicle: ${error.message}`)
+      }
+
+      // Upload photo if provided
+      if (photoFile && insertedCar) {
+        const photoUrl = await uploadPhoto(insertedCar.id)
+        if (photoUrl) {
+          // Update car record with photo URL
+          await supabase
+            .from('cars')
+            .update({ photo_url: photoUrl })
+            .eq('id', insertedCar.id)
+        }
       }
 
       // Reset form and close modal
@@ -147,7 +163,9 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         location: '',
         notes: ''
       })
-      
+      setPhotoFile(null)
+      setPhotoPreview(null)
+
       onCarAdded()
       onClose()
     } catch (error: unknown) {
@@ -165,11 +183,55 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     }))
   }
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setPhotoFile(file)
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPhotoPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const uploadPhoto = async (carId: string) => {
+    if (!photoFile) return null
+
+    try {
+      // Generate unique filename
+      const fileExt = photoFile.name.split('.').pop()
+      const fileName = `${carId}/main.${fileExt}`
+
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('car-photos')
+        .upload(fileName, photoFile, {
+          cacheControl: '3600',
+          upsert: true // Allow overwriting
+        })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('car-photos')
+        .getPublicUrl(fileName)
+
+      return publicUrl
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      return null
+    }
+  }
+
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-4 sm:top-20 mx-auto p-3 sm:p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white mb-4 sm:mb-0">
+    <div className="fixed inset-0 modal-overlay overflow-y-auto h-full w-full z-50">
+      <div className="relative top-4 sm:top-20 mx-auto p-3 sm:p-5 w-full max-w-2xl mb-4 sm:mb-0">
+        <div className="modal-content p-6">
         <div className="flex justify-between items-center mb-4 sm:mb-4">
           <h3 className="text-base sm:text-lg font-medium text-gray-900">Add New Vehicle</h3>
           <button
@@ -447,6 +509,33 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
             />
           </div>
 
+          {/* Photo Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Photo</label>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                />
+              </div>
+              {photoPreview && (
+                <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Upload a photo of the vehicle (optional). Supported formats: JPG, PNG, WebP
+            </p>
+          </div>
+
           {error && (
             <div className="text-red-600 text-sm">{error}</div>
           )}
@@ -469,6 +558,7 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   )

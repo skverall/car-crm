@@ -172,145 +172,154 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
         </div>
       </div>
         {/* Stats - First Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Cash Payments */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Cars */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <CarIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Cars</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.totalCars}</p>
+                <p className="text-xs text-gray-500 mt-1">In inventory</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Cars Sold */}
           <div className="metric-card p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
-                  <Banknote className="h-6 w-6 text-white" />
+                  <TrendingUp className="h-6 w-6 text-white" />
                 </div>
               </div>
               <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Cash Payments</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {formatCurrency(stats.cashPayments, 'AED')}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">4 operations</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Cars Sold</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.sold}</p>
+                <p className="text-xs text-gray-500 mt-1">Completed sales</p>
               </div>
             </div>
           </div>
 
-          {/* General Expenses */}
+          {/* Inventory Value */}
           <div className="metric-card p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-pink-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Package className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Inventory Value</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.stockValue, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Total investment</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Total Revenue */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-white" />
                 </div>
               </div>
               <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">General Expenses</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {formatCurrency(stats.bankPayments, 'AED')}
+                  {formatCurrency(stats.totalSaleValue, 'AED')}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">2 operations</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Total Expenses */}
-          <div className="metric-card p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center">
-                  <TrendingDown className="h-6 w-6 text-white" />
-                </div>
-              </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {formatCurrency(stats.cashPayments + stats.bankPayments, 'AED')}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">6 operations total</p>
+                <p className="text-xs text-gray-500 mt-1">From sales</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Transaction History Section */}
+        {/* Recent Cars Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-800">Transaction History</h2>
+            <h2 className="text-xl font-bold text-gray-800">Recent Cars</h2>
             <div className="flex items-center space-x-4">
-              <button className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm">
+              <button
+                onClick={() => onPageChange('inventory')}
+                className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm"
+              >
                 <Search className="h-4 w-4 mr-2" />
-                Search Transactions
+                View All Cars
               </button>
-              <button className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm">
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm"
+              >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
+                Add Car
               </button>
             </div>
           </div>
-          {/* Transaction List */}
+          {/* Recent Cars List */}
           <div className="modern-card">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-800">Recent Operations</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Recent Cars</h3>
                 <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                  <option>All Categories</option>
-                  <option>Repair</option>
-                  <option>Transport</option>
-                  <option>Customs</option>
+                  <option>All Status</option>
+                  <option>For Sale</option>
+                  <option>Sold</option>
+                  <option>In Transit</option>
+                  <option>Reserved</option>
                 </select>
               </div>
             </div>
             <div className="p-6">
-              {/* Sample transaction items matching the design */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
-                      <span className="text-red-600 font-semibold text-sm">RM</span>
+              {cars.length > 0 ? (
+                <div className="space-y-4">
+                  {cars.slice(0, 5).map((car) => (
+                    <div
+                      key={car.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-all duration-200 cursor-pointer"
+                      onClick={() => handleCarClick(car.id)}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                          <CarIcon className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">{car.year} {car.make} {car.model}</p>
+                          <p className="text-sm text-gray-600">VIN: {car.vin} • Added {car.created_at ? formatRelativeTime(car.created_at) : 'Recently'}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(car.status)}`}>
+                          {getStatusLabel(car.status)}
+                        </span>
+                        <p className="text-sm font-semibold text-gray-800 mt-1">
+                          {formatCurrency(car.purchase_price, car.purchase_currency)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-800">Repair</p>
-                      <p className="text-sm text-gray-600">2011 Hyundai Grandeur • 24 June 2025</p>
-                    </div>
-                  </div>
-                  <p className="font-bold text-gray-800">AED 600.00</p>
+                  ))}
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                      <span className="text-blue-600 font-semibold text-sm">TR</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">Transport</p>
-                      <p className="text-sm text-gray-600">2011 Hyundai Austra M1 • 14 June 2025</p>
-                    </div>
-                  </div>
-                  <p className="font-bold text-gray-800">AED 2,100.00</p>
+              ) : (
+                <div className="text-center py-8">
+                  <CarIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">No cars yet</h3>
+                  <p className="text-gray-600 mb-4">Get started by adding your first car to the inventory.</p>
+                  <button
+                    onClick={() => setShowAddModal(true)}
+                    className="btn-primary px-4 py-2 rounded-lg flex items-center mx-auto"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Car
+                  </button>
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                      <span className="text-blue-600 font-semibold text-sm">CS</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">Customs</p>
-                      <p className="text-sm text-gray-600">2011 Hyundai Grandeur • 24 June 2025</p>
-                    </div>
-                  </div>
-                  <p className="font-bold text-gray-800">AED 1,000.00</p>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                      <span className="text-blue-600 font-semibold text-sm">CS</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">Customs</p>
-                      <p className="text-sm text-gray-600">2011 Hyundai Grandeur • 14 June 2025</p>
-                    </div>
-                  </div>
-                  <p className="font-bold text-gray-800">AED 2,100.00</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

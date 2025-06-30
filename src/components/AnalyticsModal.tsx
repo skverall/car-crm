@@ -157,41 +157,45 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
     .slice(0, 5)
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white mb-10">
+    <div className="fixed inset-0 modal-overlay overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 w-full max-w-6xl mb-10">
+        <div className="modal-content p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-8">
           <div className="flex items-center">
-            <BarChart3 className="h-8 w-8 text-blue-600 mr-3" />
-            <h3 className="text-2xl font-bold text-gray-900">Analytics & Reports</h3>
+            <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+              <BarChart3 className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-3xl font-bold text-gray-800">Analytics & Reports</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Date Range Filter */}
-        <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-          <div className="flex items-center space-x-4">
+        <div className="mb-8 modern-card p-6">
+          <h4 className="text-lg font-semibold text-gray-800 mb-4">Date Range Filter</h4>
+          <div className="flex items-center space-x-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Start Date</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
               <input
                 type="date"
                 value={dateRange.startDate}
                 onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                className="mt-1 block border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">End Date</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
               <input
                 type="date"
                 value={dateRange.endDate}
                 onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                className="mt-1 block border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
               />
             </div>
           </div>
@@ -204,49 +208,57 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
         ) : (
           <div className="space-y-6">
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="metric-card p-6">
                 <div className="flex items-center">
-                  <DollarSign className="h-8 w-8 text-green-500" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Total Profit</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <p className="text-sm font-medium text-gray-600 mb-1">Total Profit</p>
+                    <p className="text-2xl font-bold text-gray-800">
                       {formatCurrency(totalProfit, 'AED')}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="metric-card p-6">
                 <div className="flex items-center">
-                  <TrendingUp className="h-8 w-8 text-blue-500" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Avg Profit</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <p className="text-sm font-medium text-gray-600 mb-1">Avg Profit</p>
+                    <p className="text-2xl font-bold text-gray-800">
                       {formatCurrency(avgProfit, 'AED')}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="metric-card p-6">
                 <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-purple-500" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Avg Days to Sell</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Calendar className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <p className="text-sm font-medium text-gray-600 mb-1">Avg Days to Sell</p>
+                    <p className="text-2xl font-bold text-gray-800">
                       {Math.round(avgDaysToSell)}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="metric-card p-6">
                 <div className="flex items-center">
-                  <TrendingDown className="h-8 w-8 text-orange-500" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Cars Sold</p>
-                    <p className="text-2xl font-bold text-gray-900">{soldCars.length}</p>
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-red-500 rounded-xl flex items-center justify-center">
+                    <TrendingDown className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <p className="text-sm font-medium text-gray-600 mb-1">Cars Sold</p>
+                    <p className="text-2xl font-bold text-gray-800">{soldCars.length}</p>
                   </div>
                 </div>
               </div>
@@ -255,8 +267,8 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Monthly Profit Chart */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Monthly Profit Trend</h4>
+              <div className="modern-card p-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">Monthly Profit Trend</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -271,8 +283,8 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
               </div>
 
               {/* Status Distribution */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Inventory Status</h4>
+              <div className="modern-card p-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">Inventory Status</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <RechartsPieChart>
                     <Tooltip />
@@ -301,8 +313,8 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
             </div>
 
             {/* Best Selling Models */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Best Selling Models</h4>
+            <div className="modern-card p-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Best Selling Models</h4>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -363,8 +375,8 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
             </div>
 
             {/* Top Profitable Cars */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Top Profitable Cars</h4>
+            <div className="modern-card p-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Top Profitable Cars</h4>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -432,6 +444,7 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   )

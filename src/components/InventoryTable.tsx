@@ -319,7 +319,11 @@ export default function InventoryTable({
           </TableHeader>
           <TableBody>
             {filteredAndSortedCars.map((car) => (
-              <TableRow key={car.id}>
+              <TableRow
+                key={car.id}
+                onClick={() => onCarClick(car.id)}
+                className="cursor-pointer"
+              >
                 <TableCell>
                   <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm">
                     <ImageIcon className="h-7 w-7 text-gray-500" />
