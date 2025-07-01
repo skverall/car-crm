@@ -170,7 +170,7 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
     <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
       <div className="relative min-h-screen">
         <div className="w-full bg-white p-6">
-        {/* Header */}
+          {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
             <CarIcon className="h-8 w-8 text-blue-600 mr-3" />
@@ -579,8 +579,8 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
           </div>
         </div>
       )}
+        </div>
       </div>
-    </div>
     </div>
   )
 }
