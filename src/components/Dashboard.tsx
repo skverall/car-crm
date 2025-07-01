@@ -26,9 +26,10 @@ import AnalyticsModal from './AnalyticsModal'
 
 interface DashboardProps {
   onDataUpdate?: () => void
+  onPageChange?: (page: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts') => void
 }
 
-export default function Dashboard({ onDataUpdate }: DashboardProps) {
+export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps) {
   const [cars, setCars] = useState<CarProfitAnalysis[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -455,10 +456,16 @@ export default function Dashboard({ onDataUpdate }: DashboardProps) {
 
         {/* Cars Table */}
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6">
+          <div className="px-3 py-4 sm:px-4 sm:py-5 lg:px-6 flex justify-between items-center">
             <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900">
               Vehicle Inventory ({filteredCars.length})
             </h3>
+            <button
+              onClick={() => onPageChange('inventory')}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              View all cars →
+            </button>
           </div>
           <ul className="divide-y divide-gray-200">
             {filteredCars.map((car) => (

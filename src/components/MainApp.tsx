@@ -31,7 +31,7 @@ export default function MainApp() {
         if (profile?.role === 'exporter') {
           return <ExporterDashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />
         }
-        return <Dashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+        return <Dashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} onPageChange={handlePageChange} />
       case 'inventory':
         return <InventoryPage key={`inventory-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'finance':
@@ -44,7 +44,7 @@ export default function MainApp() {
         if (profile?.role === 'exporter') {
           return <ExporterDashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />
         }
-        return <Dashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+        return <Dashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} onPageChange={handlePageChange} />
     }
   }
 

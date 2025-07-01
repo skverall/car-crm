@@ -150,9 +150,11 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
   if (loading) {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div className="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white modal-content">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="relative min-h-screen flex items-center justify-center p-4">
+          <div className="w-full max-w-4xl bg-white shadow-lg rounded-md p-6">
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -166,7 +168,8 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white mb-10">
+      <div className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-6xl bg-white shadow-lg rounded-md my-8 p-6">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
@@ -573,6 +576,8 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
           </div>
         </div>
       )}
+      </div>
+    </div>
     </div>
   )
 }
