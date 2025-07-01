@@ -579,7 +579,6 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
           </div>
         </div>
       )}
-        </div>
       </div>
     </div>
   )
