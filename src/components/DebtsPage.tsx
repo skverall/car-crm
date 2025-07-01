@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Debt, DebtSummary } from '@/lib/types/debt'
 import { Car } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatRelativeTime } from '@/lib/utils'
 import { 
   Plus, 
   CreditCard, 
@@ -309,6 +309,9 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
                         Vehicle: {debt.cars.year} {debt.cars.make} {debt.cars.model}
                       </p>
                     )}
+                    <p className="text-xs text-gray-400">
+                      Added {debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">

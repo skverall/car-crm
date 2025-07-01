@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Car, Expense, Document } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
-import { getStatusColor, getStatusLabel, getCategoryLabel, formatDate } from '@/lib/utils'
+import { getStatusColor, getStatusLabel, getCategoryLabel, formatDate, formatRelativeTime } from '@/lib/utils'
 import {
   X,
   Edit,
@@ -403,6 +403,9 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
                           <p className="text-sm text-gray-500">{expense.description}</p>
                           <p className="text-xs text-gray-400">
                             {formatDate(expense.expense_date)}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Added {expense.created_at ? formatRelativeTime(expense.created_at) : 'Unknown'}
                           </p>
                         </div>
                       </div>

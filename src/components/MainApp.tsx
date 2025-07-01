@@ -6,17 +6,19 @@ import Dashboard from './Dashboard'
 import ExporterDashboard from './ExporterDashboard'
 import InventoryPage from './InventoryPage'
 import FinancePage from './FinancePage'
+import CashManagementPage from './CashManagementPage'
 import DebtsPage from './DebtsPage'
 import CustomersPage from './CustomersPage'
+import MarketPricesPage from './MarketPricesPage'
 import DebugUserInfo from './DebugUserInfo'
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function MainApp() {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts'>('dashboard')
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices'>('dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const { profile, loading } = useUserProfile()
 
-  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'customers' | 'debts') => {
+  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices') => {
     setCurrentPage(page)
   }
 
@@ -36,10 +38,14 @@ export default function MainApp() {
         return <InventoryPage key={`inventory-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'finance':
         return <FinancePage key={`finance-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+      case 'cash':
+        return <CashManagementPage key={`cash-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'customers':
         return <CustomersPage key={`customers-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'debts':
         return <DebtsPage key={`debts-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+      case 'market-prices':
+        return <MarketPricesPage key={`market-prices-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       default:
         if (profile?.role === 'exporter') {
           return <ExporterDashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />
@@ -50,8 +56,11 @@ export default function MainApp() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="gradient-bg flex items-center justify-center min-h-screen">
+        <div className="modern-card p-8 flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading your CRM...</p>
+        </div>
       </div>
     )
   }

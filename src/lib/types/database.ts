@@ -4,6 +4,14 @@ export type CurrencyType = 'AED' | 'USD' | 'EUR' | 'GBP'
 export type UserRole = 'importer' | 'exporter'
 export type PaymentMethod = 'cash' | 'bank_card'
 
+// Market Prices Types
+export type VehicleCondition = 'excellent' | 'good' | 'fair' | 'poor'
+
+// Cash Management Types
+export type TransactionType = 'deposit' | 'withdrawal' | 'transfer' | 'car_sale_payment' | 'car_purchase_payment' | 'expense_payment' | 'debt_payment' | 'other'
+export type AccountType = 'cash' | 'bank_checking' | 'bank_savings' | 'credit_card' | 'other'
+export type TransactionStatus = 'pending' | 'completed' | 'cancelled' | 'failed'
+
 export interface Client {
   id: string
   user_id: string
@@ -101,6 +109,65 @@ export interface ExchangeRate {
   created_at: string
 }
 
+export interface FinancialAccount {
+  id: string
+  user_id: string
+  name: string
+  account_type: AccountType
+  currency: CurrencyType
+  initial_balance: number
+  current_balance: number
+  account_number?: string
+  bank_name?: string
+  description?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CashTransaction {
+  id: string
+  user_id: string
+  account_id: string
+  transaction_type: TransactionType
+  amount: number
+  currency: CurrencyType
+  description: string
+  reference_number?: string
+  car_id?: string
+  client_id?: string
+  expense_id?: string
+  to_account_id?: string
+  transaction_date: string
+  status: TransactionStatus
+  notes?: string
+  receipt_url?: string
+  created_at: string
+  updated_at: string
+
+  // Relations
+  account?: FinancialAccount
+  to_account?: FinancialAccount
+  car?: Car
+  client?: Client
+  expense?: Expense
+}
+
+export interface AccountBalanceHistory {
+  id: string
+  account_id: string
+  transaction_id?: string
+  previous_balance: number
+  new_balance: number
+  balance_change: number
+  change_reason: string
+  created_at: string
+
+  // Relations
+  account?: FinancialAccount
+  transaction?: CashTransaction
+}
+
 export interface CarProfitAnalysis {
   id: string
   user_id: string
@@ -131,6 +198,23 @@ export interface UserProfile {
   updated_at: string
 }
 
+export interface MarketPrice {
+  id: string
+  user_id: string
+  make: string
+  model: string
+  year: number
+  mileage?: number
+  condition: VehicleCondition
+  market_price: number
+  currency: CurrencyType
+  source?: string
+  notes?: string
+  date_updated: string
+  created_at: string
+  updated_at: string
+}
+
 // Database schema type for Supabase
 export interface Database {
   public: {
@@ -155,6 +239,21 @@ export interface Database {
         Insert: Omit<Document, 'id' | 'uploaded_at'>
         Update: Partial<Omit<Document, 'id' | 'uploaded_at'>>
       }
+      financial_accounts: {
+        Row: FinancialAccount
+        Insert: Omit<FinancialAccount, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<FinancialAccount, 'id' | 'created_at' | 'updated_at'>>
+      }
+      cash_transactions: {
+        Row: CashTransaction
+        Insert: Omit<CashTransaction, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<CashTransaction, 'id' | 'created_at' | 'updated_at'>>
+      }
+      account_balance_history: {
+        Row: AccountBalanceHistory
+        Insert: Omit<AccountBalanceHistory, 'id' | 'created_at'>
+        Update: Partial<Omit<AccountBalanceHistory, 'id' | 'created_at'>>
+      }
       exchange_rates: {
         Row: ExchangeRate
         Insert: Omit<ExchangeRate, 'id' | 'created_at'>
@@ -164,6 +263,11 @@ export interface Database {
         Row: UserProfile
         Insert: Omit<UserProfile, 'created_at' | 'updated_at'>
         Update: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>
+      }
+      market_prices: {
+        Row: MarketPrice
+        Insert: Omit<MarketPrice, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<MarketPrice, 'id' | 'created_at' | 'updated_at'>>
       }
     }
     Views: {
@@ -176,6 +280,7 @@ export interface Database {
       car_status: CarStatus
       expense_category: ExpenseCategory
       currency_type: CurrencyType
+      vehicle_condition: VehicleCondition
     }
   }
 }

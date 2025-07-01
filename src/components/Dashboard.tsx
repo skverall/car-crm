@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
-import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
+import { getStatusColor, getStatusLabel, formatDate, formatRelativeTime } from '@/lib/utils'
 import {
   Car as CarIcon,
   DollarSign,
@@ -150,176 +150,177 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Overview of your vehicle inventory and business performance</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p className="text-gray-600 text-lg">Overview of your vehicle inventory and business performance</p>
         </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setShowAnalyticsModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
           >
-            <BarChart3 className="h-4 w-4 mr-2" />
+            <BarChart3 className="h-5 w-5 mr-2" />
             Analytics
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             Add Car
           </button>
         </div>
       </div>
         {/* Stats - First Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
-          {/* Cash Payments */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Banknote className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Cars */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <CarIcon className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Cash</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.cashPayments, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Cars</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.totalCars}</p>
+                <p className="text-xs text-gray-500 mt-1">In inventory</p>
               </div>
             </div>
           </div>
 
           {/* Cars Sold */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Cars Sold</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.sold}</dd>
-                  </dl>
-                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Cars Sold</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.sold}</p>
+                <p className="text-xs text-gray-500 mt-1">Completed sales</p>
               </div>
             </div>
           </div>
 
-          {/* Bank/Card Payments */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" />
+          {/* Inventory Value */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Package className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Bank</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.bankPayments, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Inventory Value</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.stockValue, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Total investment</p>
               </div>
             </div>
           </div>
 
-          {/* Reserved Cars */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />
+          {/* Total Revenue */}
+          <div className="metric-card p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Reserved Cars</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.reserved}</dd>
-                  </dl>
-                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.totalSaleValue, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">From sales</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats - Second Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {/* Stock Summary */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Package className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Stock Summary</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.stockValue, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
+        {/* Recent Cars Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-800">Recent Cars</h2>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => onPageChange('inventory')}
+                className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                View All Cars
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Car
+              </button>
             </div>
           </div>
-
-          {/* Total Sales Revenue */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Sales Revenue</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {formatCurrency(stats.totalSaleValue, 'AED')}
-                    </dd>
-                  </dl>
-                </div>
+          {/* Recent Cars List */}
+          <div className="modern-card">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">Recent Cars</h3>
+                <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                  <option>All Status</option>
+                  <option>For Sale</option>
+                  <option>Sold</option>
+                  <option>In Transit</option>
+                  <option>Reserved</option>
+                </select>
               </div>
             </div>
-          </div>
-
-          {/* Average Days to Sell */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Target className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
+            <div className="p-6">
+              {cars.length > 0 ? (
+                <div className="space-y-4">
+                  {cars.slice(0, 5).map((car) => (
+                    <div
+                      key={car.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-all duration-200 cursor-pointer"
+                      onClick={() => handleCarClick(car.id)}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                          <CarIcon className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">{car.year} {car.make} {car.model}</p>
+                          <p className="text-sm text-gray-600">VIN: {car.vin} • Added {car.created_at ? formatRelativeTime(car.created_at) : 'Recently'}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(car.status)}`}>
+                          {getStatusLabel(car.status)}
+                        </span>
+                        <p className="text-sm font-semibold text-gray-800 mt-1">
+                          {formatCurrency(car.purchase_price, car.purchase_currency)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Avg Days to Sell</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">
-                      {Math.round(stats.avgDaysToSell)} days
-                    </dd>
-                  </dl>
+              ) : (
+                <div className="text-center py-8">
+                  <CarIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">No cars yet</h3>
+                  <p className="text-gray-600 mb-4">Get started by adding your first car to the inventory.</p>
+                  <button
+                    onClick={() => setShowAddModal(true)}
+                    className="btn-primary px-4 py-2 rounded-lg flex items-center mx-auto"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Car
+                  </button>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Monthly Sales */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-3 sm:p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-rose-500" />
-                </div>
-                <div className="ml-3 sm:ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Monthly Sales</dt>
-                    <dd className="text-base sm:text-lg font-medium text-gray-900">{stats.monthlySales}</dd>
-                  </dl>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -488,6 +489,9 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
                       </div>
                       <p className="text-xs sm:text-sm text-gray-500 font-mono truncate">
                         VIN: {car.vin}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Added {car.created_at ? formatRelativeTime(car.created_at) : 'Unknown'}
                       </p>
                     </div>
                   </div>

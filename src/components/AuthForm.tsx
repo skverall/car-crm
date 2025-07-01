@@ -77,23 +77,7 @@ export default function AuthForm() {
     }
   }
 
-  const handleDemoLogin = async () => {
-    setIsLoading(true)
-    setError('')
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: 'aydmaxx@gmail.com',
-        password: 'Demo1234',
-      })
-      if (error) throw error
-      router.refresh()
-    } catch (error: any) {
-      setError(error.message)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -105,13 +89,7 @@ export default function AuthForm() {
           <p className="mt-2 text-center text-sm text-gray-600">
             {isSignUp ? 'Create your account - No email confirmation required!' : 'Sign in to your account'}
           </p>
-          {!isSignUp && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-center text-sm text-blue-700">
-                💡 <strong>Quick Demo Access:</strong> Use the Demo Login button below for instant access without registration
-              </p>
-            </div>
-          )}
+
           {isSignUp && (
             <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
               <p className="text-center text-sm text-green-700">
@@ -220,18 +198,7 @@ export default function AuthForm() {
             </button>
           </div>
 
-          {!isSignUp && (
-            <div>
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={handleDemoLogin}
-                className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isLoading ? 'Loading...' : '🚗 Demo Login (Quick Access)'}
-              </button>
-            </div>
-          )}
+
 
           <div className="text-center">
             <button

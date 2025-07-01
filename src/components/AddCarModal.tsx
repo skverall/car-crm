@@ -7,6 +7,34 @@ import { validateVIN, formatVIN } from '@/lib/utils'
 import { getAllCurrencies } from '@/lib/utils/currency'
 import { X } from 'lucide-react'
 
+// Car manufacturers list
+const CAR_MANUFACTURERS = [
+  'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',
+  'Chevrolet', 'Chrysler', 'Citroën', 'Dodge', 'Ferrari', 'Fiat', 'Ford', 'Genesis',
+  'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini',
+  'Land Rover', 'Lexus', 'Lincoln', 'Maserati', 'Mazda', 'McLaren', 'Mercedes-Benz',
+  'MINI', 'Mitsubishi', 'Nissan', 'Peugeot', 'Porsche', 'Ram', 'Renault', 'Rolls-Royce',
+  'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+].sort()
+
+// Standard car colors
+const CAR_COLORS = [
+  'White', 'Black', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown',
+  'Yellow', 'Orange', 'Purple', 'Gold', 'Beige', 'Maroon', 'Navy', 'Pink'
+].sort()
+
+// Generate years from 1990 to current year + 1
+const generateYears = () => {
+  const currentYear = new Date().getFullYear()
+  const years = []
+  for (let year = currentYear + 1; year >= 1990; year--) {
+    years.push(year)
+  }
+  return years
+}
+
+const AVAILABLE_YEARS = generateYears()
+
 interface AddCarModalProps {
   isOpen: boolean
   onClose: () => void
@@ -16,6 +44,8 @@ interface AddCarModalProps {
 export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const supabase = createClient()
 
   const [formData, setFormData] = useState({
@@ -25,15 +55,15 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     year: new Date().getFullYear(),
     color: '',
     engine_size: '',
-    fuel_type: '',
-    transmission: '',
+    fuel_type: 'gasoline',
+    transmission: 'automatic',
     mileage: '',
     purchase_price: '',
     purchase_currency: 'AED' as CurrencyType,
     purchase_date: new Date().toISOString().split('T')[0],
     purchase_location: '',
-    dealer: '',
-    status: 'in_transit' as CarStatus,
+    dealer: 'Doniyor',
+    status: 'for_sale' as CarStatus,
     location: '',
     notes: ''
   })
@@ -90,13 +120,27 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         notes: formData.notes.trim() || null
       }
 
-      const { error } = await supabase
+      const { data: insertedCar, error } = await supabase
         .from('cars')
         .insert([carData])
+        .select()
+        .single()
 
       if (error) {
         console.error('Database error:', error)
         throw new Error(`Failed to add vehicle: ${error.message}`)
+      }
+
+      // Upload photo if provided
+      if (photoFile && insertedCar) {
+        const photoUrl = await uploadPhoto(insertedCar.id)
+        if (photoUrl) {
+          // Update car record with photo URL
+          await supabase
+            .from('cars')
+            .update({ photo_url: photoUrl })
+            .eq('id', insertedCar.id)
+        }
       }
 
       // Reset form and close modal
@@ -107,19 +151,21 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         year: new Date().getFullYear(),
         color: '',
         engine_size: '',
-        fuel_type: '',
-        transmission: '',
+        fuel_type: 'gasoline',
+        transmission: 'automatic',
         mileage: '',
         purchase_price: '',
         purchase_currency: 'AED',
         purchase_date: new Date().toISOString().split('T')[0],
         purchase_location: '',
-        dealer: '',
-        status: 'in_transit',
+        dealer: 'Doniyor',
+        status: 'for_sale',
         location: '',
         notes: ''
       })
-      
+      setPhotoFile(null)
+      setPhotoPreview(null)
+
       onCarAdded()
       onClose()
     } catch (error: unknown) {
@@ -137,11 +183,55 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     }))
   }
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setPhotoFile(file)
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPhotoPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const uploadPhoto = async (carId: string) => {
+    if (!photoFile) return null
+
+    try {
+      // Generate unique filename
+      const fileExt = photoFile.name.split('.').pop()
+      const fileName = `${carId}/main.${fileExt}`
+
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('car-photos')
+        .upload(fileName, photoFile, {
+          cacheControl: '3600',
+          upsert: true // Allow overwriting
+        })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('car-photos')
+        .getPublicUrl(fileName)
+
+      return publicUrl
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      return null
+    }
+  }
+
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-4 sm:top-20 mx-auto p-3 sm:p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white mb-4 sm:mb-0">
+    <div className="fixed inset-0 modal-overlay overflow-y-auto h-full w-full z-50">
+      <div className="relative top-4 sm:top-20 mx-auto p-3 sm:p-5 w-full max-w-2xl mb-4 sm:mb-0">
+        <div className="modal-content p-6">
         <div className="flex justify-between items-center mb-4 sm:mb-4">
           <h3 className="text-base sm:text-lg font-medium text-gray-900">Add New Vehicle</h3>
           <button
@@ -188,15 +278,18 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Make *</label>
-              <input
-                type="text"
+              <select
                 name="make"
                 required
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2.5 sm:py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base sm:text-sm text-gray-900 bg-white"
                 value={formData.make}
                 onChange={handleInputChange}
-                placeholder="e.g., Toyota"
-              />
+              >
+                <option value="">Select Make</option>
+                {CAR_MANUFACTURERS.map(make => (
+                  <option key={make} value={make}>{make}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Model *</label>
@@ -216,27 +309,31 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Year *</label>
-              <input
-                type="number"
+              <select
                 name="year"
                 required
-                min="1900"
-                max={new Date().getFullYear() + 1}
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 value={formData.year}
                 onChange={handleInputChange}
-              />
+              >
+                {AVAILABLE_YEARS.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Color</label>
-              <input
-                type="text"
+              <select
                 name="color"
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 value={formData.color}
                 onChange={handleInputChange}
-                placeholder="e.g., White"
-              />
+              >
+                <option value="">Select Color</option>
+                {CAR_COLORS.map(color => (
+                  <option key={color} value={color}>{color}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -261,11 +358,10 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
                 value={formData.fuel_type}
                 onChange={handleInputChange}
               >
-                <option value="">Select</option>
-                <option value="Gasoline">Gasoline</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Electric">Electric</option>
+                <option value="gasoline">Gasoline</option>
+                <option value="diesel">Diesel</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="electric">Electric</option>
               </select>
             </div>
             <div>
@@ -276,10 +372,9 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
                 value={formData.transmission}
                 onChange={handleInputChange}
               >
-                <option value="">Select</option>
-                <option value="Manual">Manual</option>
-                <option value="Automatic">Automatic</option>
-                <option value="CVT">CVT</option>
+                <option value="automatic">Automatic</option>
+                <option value="manual">Manual</option>
+                <option value="cvt">CVT</option>
               </select>
             </div>
           </div>
@@ -368,8 +463,8 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
                 value={formData.status}
                 onChange={handleInputChange}
               >
-                <option value="in_transit">In Transit</option>
                 <option value="for_sale">For Sale</option>
+                <option value="in_transit">In Transit</option>
                 <option value="reserved">Reserved</option>
                 <option value="sold">Sold</option>
               </select>
@@ -414,6 +509,33 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
             />
           </div>
 
+          {/* Photo Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Photo</label>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                />
+              </div>
+              {photoPreview && (
+                <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Upload a photo of the vehicle (optional). Supported formats: JPG, PNG, WebP
+            </p>
+          </div>
+
           {error && (
             <div className="text-red-600 text-sm">{error}</div>
           )}
@@ -436,6 +558,7 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   )

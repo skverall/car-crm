@@ -188,12 +188,18 @@ END $$;
 -- ===== STEP 5: DROP OLD POLICIES =====
 
 -- Drop any existing policies that might conflict
+DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON cars;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON expenses;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON debts;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON clients;
 DROP POLICY IF EXISTS "Allow all operations for authenticated users" ON documents;
 
 -- Drop existing user-specific policies to recreate them
+DROP POLICY IF EXISTS "Users can view own cars" ON cars;
+DROP POLICY IF EXISTS "Users can insert own cars" ON cars;
+DROP POLICY IF EXISTS "Users can update own cars" ON cars;
+DROP POLICY IF EXISTS "Users can delete own cars" ON cars;
+
 DROP POLICY IF EXISTS "Users can view own expenses" ON expenses;
 DROP POLICY IF EXISTS "Users can insert own expenses" ON expenses;
 DROP POLICY IF EXISTS "Users can update own expenses" ON expenses;
@@ -215,6 +221,18 @@ DROP POLICY IF EXISTS "Users can update own documents" ON documents;
 DROP POLICY IF EXISTS "Users can delete own documents" ON documents;
 
 -- ===== STEP 6: CREATE PROPER RLS POLICIES =====
+
+-- Cars policies
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'cars' AND table_schema = 'public') THEN
+        CREATE POLICY "Users can view own cars" ON cars FOR SELECT USING (auth.uid() = user_id);
+        CREATE POLICY "Users can insert own cars" ON cars FOR INSERT WITH CHECK (auth.uid() = user_id);
+        CREATE POLICY "Users can update own cars" ON cars FOR UPDATE USING (auth.uid() = user_id);
+        CREATE POLICY "Users can delete own cars" ON cars FOR DELETE USING (auth.uid() = user_id);
+        RAISE NOTICE 'Created RLS policies for cars table';
+    END IF;
+END $$;
 
 -- Expenses policies
 DO $$
