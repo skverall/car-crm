@@ -157,8 +157,9 @@ export default function ClientsModal({ isOpen, onClose }: ClientsModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white mb-10">
+    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
+      <div className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl bg-white shadow-lg rounded-md border p-5">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center">

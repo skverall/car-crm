@@ -149,10 +149,12 @@ export default function DebtDetailModal({ isOpen, onClose, debtId, onDebtUpdated
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-          <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+      <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
+        <div className="relative min-h-screen flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-white shadow-lg rounded-md border p-5">
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -162,8 +164,9 @@ export default function DebtDetailModal({ isOpen, onClose, debtId, onDebtUpdated
   if (!debt) return null
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white mb-10">
+    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
+      <div className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl bg-white shadow-lg rounded-md border p-5">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
