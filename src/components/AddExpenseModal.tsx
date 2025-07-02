@@ -101,17 +101,17 @@ export default function AddExpenseModal({ isOpen, onClose, carId, onExpenseAdded
     <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white shadow-lg rounded-md border p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Add Expense</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Add Expense</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
           {/* Category */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Category *</label>
@@ -223,7 +223,8 @@ export default function AddExpenseModal({ isOpen, onClose, carId, onExpenseAdded
               {loading ? 'Adding...' : 'Add Expense'}
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   )

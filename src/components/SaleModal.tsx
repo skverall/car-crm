@@ -168,18 +168,18 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
     <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-lg bg-white shadow-lg rounded-md border p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Mark Vehicle as Sold</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Mark Vehicle as Sold</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
 
-        {/* Vehicle Summary */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          {/* Vehicle Summary */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <h4 className="font-medium text-gray-900 mb-2">
             {car.year} {car.make} {car.model}
           </h4>
@@ -198,9 +198,9 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
               <p className="font-medium">{formatCurrency(totalCost, 'AED')}</p>
             </div>
           </div>
-        </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
           {/* Sale Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -374,7 +374,8 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
               )}
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   )

@@ -160,8 +160,8 @@ export default function ClientsModal({ isOpen, onClose }: ClientsModalProps) {
     <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl bg-white shadow-lg rounded-md border p-5">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
           <div className="flex items-center">
             <User className="h-8 w-8 text-blue-600 mr-3" />
             <h3 className="text-2xl font-bold text-gray-900">Client Management</h3>
@@ -172,12 +172,12 @@ export default function ClientsModal({ isOpen, onClose }: ClientsModalProps) {
           >
             <X className="h-6 w-6" />
           </button>
-        </div>
+          </div>
 
-        {!showAddForm ? (
-          <>
-            {/* Search and Add Button */}
-            <div className="flex justify-between items-center mb-6">
+          {!showAddForm ? (
+            <>
+              {/* Search and Add Button */}
+              <div className="flex justify-between items-center mb-6">
               <div className="flex-1 max-w-md">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -358,7 +358,8 @@ export default function ClientsModal({ isOpen, onClose }: ClientsModalProps) {
               </button>
             </div>
           </form>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
