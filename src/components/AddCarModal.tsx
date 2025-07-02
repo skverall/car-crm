@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import { CurrencyType, CarStatus } from '@/lib/types/database'
 import { validateVIN, formatVIN } from '@/lib/utils'
 import { getAllCurrencies } from '@/lib/utils/currency'
+import { validateCarData, ValidationResult } from '@/lib/utils/validation'
+import { SecurityAuditLogger } from '@/lib/utils/security'
 import { X } from 'lucide-react'
 
 // Car manufacturers list
@@ -44,6 +46,8 @@ interface AddCarModalProps {
 export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [warnings, setWarnings] = useState<string[]>([])
+  const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const supabase = createClient()
@@ -72,6 +76,8 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
     e.preventDefault()
     setLoading(true)
     setError('')
+    setWarnings([])
+    setValidationErrors([])
 
     try {
       // Get current user
@@ -80,44 +86,42 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         throw new Error('You must be logged in to add a vehicle')
       }
 
-      // Format VIN but don't block submission for invalid VIN
-      const formattedVIN = formatVIN(formData.vin)
+      // Validate and sanitize form data
+      const validationResult = validateCarData(formData)
 
-      // Show warnings but don't prevent submission
-      let warnings = []
-      if (formattedVIN.length !== 17) {
-        warnings.push(`Warning: VIN length is ${formattedVIN.length} characters instead of standard 17`)
+      if (!validationResult.isValid) {
+        setValidationErrors(validationResult.errors)
+        setLoading(false)
+        return
       }
 
-      if (!validateVIN(formattedVIN)) {
-        warnings.push('Warning: VIN format may be invalid (standard VIN contains only letters except I, O, Q and numbers)')
+      if (validationResult.warnings.length > 0) {
+        setWarnings(validationResult.warnings)
       }
 
-      // If there are warnings, show them but continue with submission
-      if (warnings.length > 0) {
-        console.warn('VIN warnings:', warnings.join('; '))
-      }
+      // Use sanitized data
+      const sanitizedData = validationResult.sanitized
 
-      // Prepare data for insertion
+      // Prepare data for insertion using sanitized data
       const carData = {
         user_id: user.id,
-        vin: formattedVIN,
-        make: formData.make.trim(),
-        model: formData.model.trim(),
-        year: formData.year,
-        color: formData.color.trim() || null,
-        engine_size: formData.engine_size.trim() || null,
+        vin: sanitizedData.vin,
+        make: sanitizedData.make,
+        model: sanitizedData.model,
+        year: sanitizedData.year,
+        color: sanitizedData.color || null,
+        engine_size: sanitizedData.engine_size || null,
         fuel_type: formData.fuel_type.trim() || null,
         transmission: formData.transmission.trim() || null,
-        mileage: formData.mileage ? parseInt(formData.mileage) : null,
-        purchase_price: parseFloat(formData.purchase_price),
-        purchase_currency: formData.purchase_currency,
-        purchase_date: formData.purchase_date,
+        mileage: sanitizedData.mileage || null,
+        purchase_price: sanitizedData.purchase_price,
+        purchase_currency: sanitizedData.purchase_currency,
+        purchase_date: sanitizedData.purchase_date,
         purchase_location: formData.purchase_location.trim() || null,
-        dealer: formData.dealer.trim() || null,
-        status: formData.status,
-        location: formData.location.trim() || null,
-        notes: formData.notes.trim() || null
+        dealer: sanitizedData.dealer || null,
+        status: sanitizedData.status,
+        location: sanitizedData.location || null,
+        notes: sanitizedData.notes || null
       }
 
       const { data: insertedCar, error } = await supabase
@@ -142,6 +146,20 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
             .eq('id', insertedCar.id)
         }
       }
+
+      // Log successful car addition for audit
+      SecurityAuditLogger.log({
+        userId: user.id,
+        action: 'CREATE',
+        resource: 'car',
+        resourceId: insertedCar.id,
+        details: {
+          make: sanitizedData.make,
+          model: sanitizedData.model,
+          year: sanitizedData.year,
+          vin: sanitizedData.vin
+        }
+      })
 
       // Reset form and close modal
       setFormData({
@@ -243,6 +261,35 @@ export default function AddCarModal({ isOpen, onClose, onCarAdded }: AddCarModal
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Error Messages */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <p className="text-red-800 text-sm">{error}</p>
+            </div>
+          )}
+
+          {validationErrors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <h4 className="text-red-800 text-sm font-medium mb-2">Validation Errors:</h4>
+              <ul className="text-red-700 text-sm list-disc list-inside">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {warnings.length > 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+              <h4 className="text-yellow-800 text-sm font-medium mb-2">Warnings:</h4>
+              <ul className="text-yellow-700 text-sm list-disc list-inside">
+                {warnings.map((warning, index) => (
+                  <li key={index}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* VIN */}
           <div>
             <label className="block text-sm font-medium text-gray-700">

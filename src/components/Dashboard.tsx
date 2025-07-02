@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
 import { getStatusColor, getStatusLabel, formatDate, formatRelativeTime } from '@/lib/utils'
+import { useOptimizedCalculation, usePerformanceMonitor } from '@/hooks/usePerformance'
+import { useApiErrorHandler } from '@/hooks/useErrorHandler'
 import {
   Car as CarIcon,
   DollarSign,
@@ -40,6 +42,12 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null)
   const supabase = createClient()
 
+  // Performance monitoring
+  usePerformanceMonitor('Dashboard')
+
+  // Error handling
+  const { handleError } = useApiErrorHandler()
+
   const fetchCars = useCallback(async () => {
     try {
       // Get current user
@@ -59,11 +67,11 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
       if (error) throw error
       setCars(data || [])
     } catch (error) {
-      console.error('Error fetching cars:', error)
+      handleError(error, 'fetch_cars', 'Failed to load vehicle data')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [supabase, handleError])
 
   useEffect(() => {
     fetchCars()
@@ -74,70 +82,84 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
     setShowDetailModal(true)
   }
 
-  const filteredCars = cars.filter(car => {
-    const matchesSearch = car.vin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         car.model.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || car.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // Optimized filtering with memoization
+  const filteredCars = useMemo(() => {
+    return cars.filter(car => {
+      const matchesSearch = car.vin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           car.model.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = statusFilter === 'all' || car.status === statusFilter
+      return matchesSearch && matchesStatus
+    })
+  }, [cars, searchTerm, statusFilter])
 
   // Separate unsold cars for inventory calculations
-  const unsoldCars = cars.filter(car => car.status !== 'sold')
+  const unsoldCars = useMemo(() =>
+    cars.filter(car => car.status !== 'sold'),
+    [cars]
+  )
 
-  const stats = {
-    totalCars: cars.length,
-    unsoldCars: unsoldCars.length,
-    inTransit: cars.filter(car => car.status === 'in_transit').length,
-    forSale: cars.filter(car => car.status === 'for_sale').length,
-    sold: cars.filter(car => car.status === 'sold').length,
-    reserved: cars.filter(car => car.status === 'reserved').length,
-    totalProfit: cars
+  // Optimized statistics calculation
+  const stats = useOptimizedCalculation(cars, (carsData) => ({
+    totalCars: carsData.length,
+    unsoldCars: carsData.filter(car => car.status !== 'sold').length,
+    inTransit: carsData.filter(car => car.status === 'in_transit').length,
+    forSale: carsData.filter(car => car.status === 'for_sale').length,
+    sold: carsData.filter(car => car.status === 'sold').length,
+    reserved: carsData.filter(car => car.status === 'reserved').length,
+    totalProfit: carsData
       .filter(car => car.profit_aed !== null)
       .reduce((sum, car) => sum + (car.profit_aed || 0), 0),
     // Only count purchase cost for unsold cars (current inventory value)
-    totalPurchaseCost: unsoldCars.reduce((sum, car) => {
-      return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
-    }, 0),
+    totalPurchaseCost: carsData
+      .filter(car => car.status !== 'sold')
+      .reduce((sum, car) => {
+        return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
+      }, 0),
     // Total cost including expenses for unsold cars
-    totalInventoryValue: unsoldCars.reduce((sum, car) => {
-      return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED') + (car.total_expenses_aed || 0)
-    }, 0),
-    totalSaleValue: cars
+    totalInventoryValue: carsData
+      .filter(car => car.status !== 'sold')
+      .reduce((sum, car) => {
+        return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED') + (car.total_expenses_aed || 0)
+      }, 0),
+    totalSaleValue: carsData
       .filter(car => car.sale_price)
       .reduce((sum, car) => {
         return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
       }, 0),
     // Cash payments total
-    cashPayments: cars
+    cashPayments: carsData
       .filter(car => car.status === 'sold' && car.payment_method === 'cash' && car.sale_price)
       .reduce((sum, car) => {
         return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
       }, 0),
     // Bank/Card payments total
-    bankPayments: cars
+    bankPayments: carsData
       .filter(car => car.status === 'sold' && car.payment_method === 'bank_card' && car.sale_price)
       .reduce((sum, car) => {
         return sum + convertCurrency(car.sale_price!, car.sale_currency || 'AED', 'AED')
       }, 0),
     // Stock Summary - total cost of unsold inventory
-    stockValue: unsoldCars.reduce((sum, car) => {
-      return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
-    }, 0),
-    // Average days to sell for sold cars
-    avgDaysToSell: cars
-      .filter(car => car.status === 'sold' && car.days_to_sell)
-      .reduce((sum, car, _, arr) => {
-        return arr.length > 0 ? sum + (car.days_to_sell || 0) / arr.length : 0
+    stockValue: carsData
+      .filter(car => car.status !== 'sold')
+      .reduce((sum, car) => {
+        return sum + convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
       }, 0),
+    // Average days to sell for sold cars
+    avgDaysToSell: (() => {
+      const soldCarsWithDays = carsData.filter(car => car.status === 'sold' && car.days_to_sell)
+      if (soldCarsWithDays.length === 0) return 0
+      const totalDays = soldCarsWithDays.reduce((sum, car) => sum + (car.days_to_sell || 0), 0)
+      return Math.round(totalDays / soldCarsWithDays.length)
+    })(),
     // Monthly sales (cars sold this month)
-    monthlySales: cars.filter(car => {
+    monthlySales: carsData.filter(car => {
       if (!car.sale_date) return false
       const saleDate = new Date(car.sale_date)
       const now = new Date()
       return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear()
     }).length
-  }
+  }), [cars])
 
   if (loading) {
     return (
@@ -404,7 +426,10 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
                 <div className="flex justify-between items-center">
                   <span className="text-xs sm:text-sm text-gray-500">Profit Margin</span>
                   <span className="text-xs sm:text-sm font-medium text-gray-900">
-                    {stats.totalSaleValue > 0 ? Math.round((stats.totalProfit / stats.totalSaleValue) * 100) : 0}%
+                    {(() => {
+                      const totalCost = stats.totalSaleValue - stats.totalProfit
+                      return totalCost > 0 ? Math.round((stats.totalProfit / totalCost) * 100) : 0
+                    })()}%
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

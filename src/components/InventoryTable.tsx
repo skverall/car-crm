@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { CarProfitAnalysis } from '@/lib/types/database'
-import { formatCurrency } from '@/lib/utils/currency'
+import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
 import { getStatusColor, getStatusLabel } from '@/lib/utils'
 import { useDebounce } from '@/hooks/useDebounce'
 import { 
@@ -104,12 +104,7 @@ export default function InventoryTable({
                        (!filters.yearMax || car.year <= parseInt(filters.yearMax))
 
       // Price filter (using purchase price in AED)
-      const purchasePriceAED = car.purchase_price * (
-        car.purchase_currency === 'AED' ? 1 :
-        car.purchase_currency === 'USD' ? 3.67 :
-        car.purchase_currency === 'EUR' ? 4.00 :
-        car.purchase_currency === 'GBP' ? 4.60 : 1
-      )
+      const purchasePriceAED = convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
       const priceMatch = (!filters.priceMin || purchasePriceAED >= parseFloat(filters.priceMin)) &&
                         (!filters.priceMax || purchasePriceAED <= parseFloat(filters.priceMax))
 
@@ -124,8 +119,8 @@ export default function InventoryTable({
 
         // Handle special sorting cases
         if (sortConfig.key === 'total_cost') {
-          aValue = (a.purchase_price * (a.purchase_currency === 'AED' ? 1 : a.purchase_currency === 'USD' ? 3.67 : a.purchase_currency === 'EUR' ? 4.00 : 4.60)) + (a.total_expenses_aed || 0)
-          bValue = (b.purchase_price * (b.purchase_currency === 'AED' ? 1 : b.purchase_currency === 'USD' ? 3.67 : b.purchase_currency === 'EUR' ? 4.00 : 4.60)) + (b.total_expenses_aed || 0)
+          aValue = convertCurrency(a.purchase_price, a.purchase_currency, 'AED') + (a.total_expenses_aed || 0)
+          bValue = convertCurrency(b.purchase_price, b.purchase_currency, 'AED') + (b.total_expenses_aed || 0)
         }
 
         if (aValue === null || aValue === undefined) aValue = ''
@@ -171,12 +166,7 @@ export default function InventoryTable({
   const activeFiltersCount = Object.values(filters).filter(Boolean).length + (debouncedSearchTerm ? 1 : 0)
 
   const calculateTotalCost = (car: CarProfitAnalysis) => {
-    const purchasePriceAED = car.purchase_price * (
-      car.purchase_currency === 'AED' ? 1 :
-      car.purchase_currency === 'USD' ? 3.67 :
-      car.purchase_currency === 'EUR' ? 4.00 :
-      car.purchase_currency === 'GBP' ? 4.60 : 1
-    )
+    const purchasePriceAED = convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
     return purchasePriceAED + (car.total_expenses_aed || 0)
   }
 

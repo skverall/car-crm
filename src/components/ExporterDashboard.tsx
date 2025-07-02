@@ -76,10 +76,12 @@ export default function ExporterDashboard({ onDataUpdate }: ExporterDashboardPro
   const totalVehicles = cars.length
   const soldVehicles = cars.filter(car => car.status === 'sold').length
 
-  const averageTimeToExport = cars
-    .filter(car => car.status === 'sold' && car.days_to_sell)
-    .reduce((sum, car) => sum + (car.days_to_sell || 0), 0) / 
-    Math.max(1, cars.filter(car => car.status === 'sold' && car.days_to_sell).length)
+  const averageTimeToExport = (() => {
+    const soldCarsWithDays = cars.filter(car => car.status === 'sold' && car.days_to_sell)
+    if (soldCarsWithDays.length === 0) return 0
+    const totalDays = soldCarsWithDays.reduce((sum, car) => sum + (car.days_to_sell || 0), 0)
+    return totalDays / soldCarsWithDays.length
+  })()
 
   if (loading) {
     return (

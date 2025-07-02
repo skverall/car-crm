@@ -1,15 +1,7 @@
 import { CurrencyType } from '@/lib/types/database'
+import ExchangeRateService from '@/lib/services/exchangeRates'
 
-// Default exchange rates (should be updated from API or database)
-const DEFAULT_RATES: Record<string, number> = {
-  'USD_AED': 3.67,
-  'EUR_AED': 4.00,
-  'GBP_AED': 4.60,
-  'AED_USD': 0.27,
-  'AED_EUR': 0.25,
-  'AED_GBP': 0.22,
-}
-
+// Synchronous version for backward compatibility (uses cached rates)
 export function convertCurrency(
   amount: number,
   fromCurrency: CurrencyType,
@@ -19,21 +11,31 @@ export function convertCurrency(
     return amount
   }
 
+  // Use fallback rates for synchronous calls
+  const fallbackRates: Record<string, number> = {
+    'USD_AED': 3.67,
+    'EUR_AED': 4.00,
+    'GBP_AED': 4.60,
+    'AED_USD': 0.27,
+    'AED_EUR': 0.25,
+    'AED_GBP': 0.22,
+  }
+
   const rateKey = `${fromCurrency}_${toCurrency}`
-  const rate = DEFAULT_RATES[rateKey]
-  
+  const rate = fallbackRates[rateKey]
+
   if (!rate) {
     // If direct rate not available, convert through AED
     if (toCurrency === 'AED') {
-      const toAedRate = DEFAULT_RATES[`${fromCurrency}_AED`]
+      const toAedRate = fallbackRates[`${fromCurrency}_AED`]
       return toAedRate ? amount * toAedRate : amount
     } else if (fromCurrency === 'AED') {
-      const fromAedRate = DEFAULT_RATES[`AED_${toCurrency}`]
+      const fromAedRate = fallbackRates[`AED_${toCurrency}`]
       return fromAedRate ? amount * fromAedRate : amount
     } else {
       // Convert from -> AED -> to
-      const toAedRate = DEFAULT_RATES[`${fromCurrency}_AED`]
-      const fromAedRate = DEFAULT_RATES[`AED_${toCurrency}`]
+      const toAedRate = fallbackRates[`${fromCurrency}_AED`]
+      const fromAedRate = fallbackRates[`AED_${toCurrency}`]
       if (toAedRate && fromAedRate) {
         return amount * toAedRate * fromAedRate
       }
@@ -41,6 +43,15 @@ export function convertCurrency(
   }
 
   return rate ? amount * rate : amount
+}
+
+// Async version using the new exchange rate service
+export async function convertCurrencyAsync(
+  amount: number,
+  fromCurrency: CurrencyType,
+  toCurrency: CurrencyType = 'AED'
+): Promise<number> {
+  return await ExchangeRateService.convertCurrency(amount, fromCurrency, toCurrency)
 }
 
 export function formatCurrency(

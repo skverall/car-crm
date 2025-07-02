@@ -50,7 +50,6 @@ export interface Car {
   sale_date?: string
   client_id?: string
   payment_method?: PaymentMethod
-  payment_method?: PaymentMethod
 
   // Status and tracking
   status: CarStatus
