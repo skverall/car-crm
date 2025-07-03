@@ -176,6 +176,7 @@ export default function AuthForm() {
                 >
                   <option value="importer">🚗 Importer - Buy and sell vehicles</option>
                   <option value="exporter">📦 Exporter - Export vehicles to other countries</option>
+                  <option value="admin">👑 Administrator - Manage users and system</option>
                 </select>
                 <p className="mt-1 text-xs text-gray-500">
                   Choose your business type to get the right dashboard experience

@@ -17,14 +17,15 @@ import {
   Package,
   Ship,
   Banknote,
-  TrendingUp
+  TrendingUp,
+  Shield
 } from 'lucide-react'
 import { UserProfile } from '@/lib/types/database'
 
 interface LayoutProps {
   children: React.ReactNode
-  currentPage: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices'
-  onPageChange: (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices') => void
+  currentPage: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin'
+  onPageChange: (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin') => void
   userProfile?: UserProfile | null
 }
 
@@ -65,6 +66,16 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
       { id: 'customers', name: 'Customers', icon: Users },
       { id: 'market-prices', name: '📊 Market Prices', icon: TrendingUp },
     ]
+
+    // Add admin panel for admin users
+    if (userProfile?.role === 'admin') {
+      baseNavigation.push({
+        id: 'admin',
+        name: '👑 Admin Panel',
+        icon: Shield
+      })
+    }
+
     return baseNavigation
   }
 

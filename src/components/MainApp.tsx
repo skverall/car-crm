@@ -11,14 +11,16 @@ import DebtsPage from './DebtsPage'
 import CustomersPage from './CustomersPage'
 import MarketPricesPage from './MarketPricesPage'
 import DebugUserInfo from './DebugUserInfo'
+import AdminPanel from './AdminPanel'
+import AdminRoute from './AdminRoute'
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function MainApp() {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices'>('dashboard')
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin'>('dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const { profile, loading } = useUserProfile()
 
-  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices') => {
+  const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin') => {
     setCurrentPage(page)
   }
 
@@ -46,6 +48,12 @@ export default function MainApp() {
         return <DebtsPage key={`debts-${refreshKey}`} onDataUpdate={handleDataUpdate} />
       case 'market-prices':
         return <MarketPricesPage key={`market-prices-${refreshKey}`} onDataUpdate={handleDataUpdate} />
+      case 'admin':
+        return (
+          <AdminRoute>
+            <AdminPanel key={`admin-${refreshKey}`} />
+          </AdminRoute>
+        )
       default:
         if (profile?.role === 'exporter') {
           return <ExporterDashboard key={`dashboard-${refreshKey}`} onDataUpdate={handleDataUpdate} />

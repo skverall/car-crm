@@ -1,7 +1,7 @@
 export type CarStatus = 'in_transit' | 'for_sale' | 'sold' | 'reserved'
 export type ExpenseCategory = 'purchase' | 'transport' | 'customs' | 'repair' | 'maintenance' | 'marketing' | 'office' | 'other'
 export type CurrencyType = 'AED' | 'USD' | 'EUR' | 'GBP'
-export type UserRole = 'importer' | 'exporter'
+export type UserRole = 'importer' | 'exporter' | 'admin'
 export type PaymentMethod = 'cash' | 'bank_card'
 
 // Market Prices Types

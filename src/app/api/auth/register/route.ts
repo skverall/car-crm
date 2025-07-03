@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!role || !['importer', 'exporter'].includes(role)) {
+    if (!role || !['importer', 'exporter', 'admin'].includes(role)) {
       return NextResponse.json(
         { error: 'Valid role is required' },
         { status: 400 }
