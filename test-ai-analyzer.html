@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Market Analyzer Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5856eb;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #6366f1;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        .error {
+            background: #fee;
+            border-left-color: #f56565;
+            color: #c53030;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Market Analyzer Test</h1>
+        <p>Test the AI Market Analysis API endpoint</p>
+        
+        <form id="analysisForm">
+            <div class="form-group">
+                <label for="make">Make *</label>
+                <input type="text" id="make" name="make" placeholder="e.g., Toyota" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="model">Model *</label>
+                <input type="text" id="model" name="model" placeholder="e.g., Camry" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="year">Year *</label>
+                <input type="number" id="year" name="year" value="2020" min="1990" max="2025" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="mileage">Mileage (km)</label>
+                <input type="number" id="mileage" name="mileage" placeholder="e.g., 50000">
+            </div>
+            
+            <div class="form-group">
+                <label for="condition">Condition</label>
+                <select id="condition" name="condition">
+                    <option value="excellent">Excellent</option>
+                    <option value="good" selected>Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="poor">Poor</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="submitBtn">Analyze Market</button>
+        </form>
+        
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('analysisForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            // Get form data
+            const formData = new FormData(e.target);
+            const data = {
+                make: formData.get('make'),
+                model: formData.get('model'),
+                year: parseInt(formData.get('year')),
+                mileage: formData.get('mileage') ? parseInt(formData.get('mileage')) : undefined,
+                condition: formData.get('condition')
+            };
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Analyzing...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '🔄 Analyzing market data...';
+            
+            try {
+                const response = await fetch('/api/ai/market-analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Display results
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = `
+                    <h3>📊 Analysis Results for ${data.make} ${data.model} ${data.year}</h3>
+                    <p><strong>Minimum Price:</strong> ${result.minimum_price}</p>
+                    <p><strong>Average Price:</strong> ${result.average_price}</p>
+                    <p><strong>Maximum Price:</strong> ${result.maximum_price}</p>
+                    <p><strong>Recommended Auction Price:</strong> ${result.recommended_auction_price}</p>
+                    <p><strong>Resale Speed:</strong> ${result.resale_speed}</p>
+                    <p><strong>Verdict:</strong> ${result.verdict}</p>
+                    <p><small>Analysis Date: ${result.analysis_date}</small></p>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Analyze Market';
+            }
+        });
+    </script>
+</body>
+</html>

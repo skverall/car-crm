@@ -15,10 +15,12 @@ import {
   DollarSign,
   Edit,
   Trash2,
-  BarChart3
+  BarChart3,
+  Brain
 } from 'lucide-react'
 import AddMarketPriceModal from './AddMarketPriceModal'
 import MarketPriceTrendChart from './MarketPriceTrendChart'
+import AIMarketAnalyzer from './AIMarketAnalyzer'
 
 interface MarketPricesPageProps {
   onDataUpdate?: () => void
@@ -32,6 +34,7 @@ export default function MarketPricesPage({ onDataUpdate }: MarketPricesPageProps
   const [conditionFilter, setConditionFilter] = useState<string>('all')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showTrendChart, setShowTrendChart] = useState(false)
+  const [showAIAnalyzer, setShowAIAnalyzer] = useState(false)
   const [sortField, setSortField] = useState<keyof MarketPrice>('date_updated')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const supabase = createClient()
@@ -140,6 +143,13 @@ export default function MarketPricesPage({ onDataUpdate }: MarketPricesPageProps
           <p className="text-gray-600">Track and analyze vehicle market values</p>
         </div>
         <div className="flex items-center space-x-4">
+          <button
+            onClick={() => setShowAIAnalyzer(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md flex items-center"
+          >
+            <Brain className="h-4 w-4 mr-2" />
+            AI Analyzer
+          </button>
           <button
             onClick={() => setShowTrendChart(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
@@ -397,6 +407,13 @@ export default function MarketPricesPage({ onDataUpdate }: MarketPricesPageProps
         <AddMarketPriceModal
           onClose={() => setShowAddModal(false)}
           onSuccess={handleDataUpdate}
+        />
+      )}
+
+      {/* AI Market Analyzer */}
+      {showAIAnalyzer && (
+        <AIMarketAnalyzer
+          onClose={() => setShowAIAnalyzer(false)}
         />
       )}
 
