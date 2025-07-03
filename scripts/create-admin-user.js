@@ -18,7 +18,7 @@ async function createAdminUser() {
     }
   })
 
-  const adminEmail = 'admin@carcrm.com'
+  const adminEmail = 'admin@admin.com'
   const adminPassword = 'Admin123!'
 
   try {

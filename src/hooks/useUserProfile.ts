@@ -32,7 +32,7 @@ export function useUserProfile() {
               .from('user_profiles')
               .insert({
                 id: user.id,
-                role: (user.user_metadata?.role as 'importer' | 'exporter') || 'importer',
+                role: (user.user_metadata?.role as 'importer' | 'exporter' | 'admin') || 'importer',
                 full_name: user.user_metadata?.full_name || user.email || 'User',
               })
               .select()

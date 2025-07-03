@@ -11,6 +11,7 @@ import DebtsPage from './DebtsPage'
 import CustomersPage from './CustomersPage'
 import MarketPricesPage from './MarketPricesPage'
 import DebugUserInfo from './DebugUserInfo'
+import RoleDebug from './RoleDebug'
 import AdminPanel from './AdminPanel'
 import AdminRoute from './AdminRoute'
 import { useUserProfile } from '@/hooks/useUserProfile'
@@ -76,7 +77,6 @@ export default function MainApp() {
   return (
     <Layout currentPage={currentPage} onPageChange={handlePageChange} userProfile={profile}>
       {renderCurrentPage()}
-      <DebugUserInfo />
     </Layout>
   )
 }
