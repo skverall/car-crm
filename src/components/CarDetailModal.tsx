@@ -167,9 +167,9 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
   const totalExpenses = calculateTotalExpenses()
 
   return (
-    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
-      <div className="relative min-h-screen full-screen-modal">
-        <div className="w-full h-full bg-white p-6">
+    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50 flex flex-col min-h-screen">
+      <div className="relative flex-1 full-screen-modal flex flex-col">
+        <div className="w-full flex-1 bg-white p-6 flex flex-col">
           {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">

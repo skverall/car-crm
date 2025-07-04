@@ -220,6 +220,8 @@ textarea:focus {
     max-height: 100vh !important;
     height: 100vh !important;
     width: 100vw !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 }
 
@@ -230,11 +232,16 @@ textarea:focus {
   height: 100vh;
   width: 100%;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .full-screen-modal > div {
   min-height: 100vh;
   height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Improve focus states for accessibility */
