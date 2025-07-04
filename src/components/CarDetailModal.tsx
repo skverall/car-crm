@@ -168,8 +168,8 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
   return (
     <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
-      <div className="relative min-h-screen">
-        <div className="w-full bg-white p-6">
+      <div className="relative min-h-screen full-screen-modal">
+        <div className="w-full h-full bg-white p-6">
           {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
