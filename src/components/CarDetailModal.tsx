@@ -176,9 +176,6 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
   if (!car) return null
 
-  const profit = calculateProfit()
-  const totalExpenses = calculateTotalExpenses()
-
   return (
     <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50 flex flex-col min-h-screen">
       <div className="relative flex-1 full-screen-modal flex flex-col">
