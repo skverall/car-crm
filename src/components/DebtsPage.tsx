@@ -6,15 +6,22 @@ import { Debt, DebtSummary } from '@/lib/types/debt'
 import { Car } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
 import { formatDate, formatRelativeTime } from '@/lib/utils'
-import { 
-  Plus, 
-  CreditCard, 
+import {
+  Plus,
+  CreditCard,
   AlertTriangle,
   CheckCircle,
   Clock,
   Search,
   Filter,
-  DollarSign
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  User,
+  FileText,
+  Target,
+  BarChart3
 } from 'lucide-react'
 import AddDebtModal from './AddDebtModal'
 import DebtDetailModal from './DebtDetailModal'
@@ -161,183 +168,267 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Debt Management</h1>
-          <p className="text-gray-600">Track and manage your business debts and payments</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Debt Management</h1>
+          <p className="text-gray-600 text-lg">Track and manage your business debts and payments</p>
         </div>
         <button
           onClick={() => setShowAddDebtModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+          className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-5 w-5 mr-2" />
           Add Debt
         </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CreditCard className="h-8 w-8 text-gray-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Debt</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(summary.totalDebt, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Debt Card */}
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-slate-500 rounded-xl flex items-center justify-center">
+              <CreditCard className="h-6 w-6 text-white" />
             </div>
+            <span className="text-xs font-medium text-slate-600 bg-slate-200 px-2 py-1 rounded-full">
+              Total
+            </span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-slate-600 font-medium">Total Debt</p>
+            <p className="text-2xl font-bold text-slate-900">
+              {formatCurrency(summary.totalDebt, 'AED')}
+            </p>
+            <p className="text-xs text-slate-500">{debts.length} debt{debts.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-8 w-8 text-green-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Paid Debt</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(summary.paidDebt, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+        {/* Paid Debt Card */}
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+              <CheckCircle className="h-6 w-6 text-white" />
             </div>
+            <span className="text-xs font-medium text-green-600 bg-green-200 px-2 py-1 rounded-full">
+              Paid
+            </span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-green-600 font-medium">Paid Debt</p>
+            <p className="text-2xl font-bold text-green-900">
+              {formatCurrency(summary.paidDebt, 'AED')}
+            </p>
+            <p className="text-xs text-green-500">
+              {debts.filter(d => d.status === 'paid').length} completed
+            </p>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Clock className="h-8 w-8 text-yellow-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending Debt</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(summary.pendingDebt, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+        {/* Pending Debt Card */}
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 border border-amber-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
+              <Clock className="h-6 w-6 text-white" />
             </div>
+            <span className="text-xs font-medium text-amber-600 bg-amber-200 px-2 py-1 rounded-full">
+              Pending
+            </span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-amber-600 font-medium">Pending Debt</p>
+            <p className="text-2xl font-bold text-amber-900">
+              {formatCurrency(summary.pendingDebt, 'AED')}
+            </p>
+            <p className="text-xs text-amber-500">
+              {debts.filter(d => d.status === 'pending').length} awaiting payment
+            </p>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <AlertTriangle className="h-8 w-8 text-red-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Overdue Debt</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(summary.overdueDebt, 'AED')}
-                  </dd>
-                </dl>
-              </div>
+        {/* Overdue Debt Card */}
+        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+              <AlertTriangle className="h-6 w-6 text-white" />
             </div>
+            <span className="text-xs font-medium text-red-600 bg-red-200 px-2 py-1 rounded-full">
+              Overdue
+            </span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-red-600 font-medium">Overdue Debt</p>
+            <p className="text-2xl font-bold text-red-900">
+              {formatCurrency(summary.overdueDebt, 'AED')}
+            </p>
+            <p className="text-xs text-red-500">
+              {debts.filter(d => d.status === 'overdue').length} past due
+            </p>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white shadow rounded-lg mb-6">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+        <div className="px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 sm:space-x-4">
             <div className="flex-1 min-w-0">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="Search debts..."
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Search by creditor name or description..."
+                  className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
-            <div className="sm:w-48">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="paid">Paid</option>
-                <option value="overdue">Overdue</option>
-              </select>
+            <div className="sm:w-56">
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <select
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Debts List */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {filteredDebts.map((debt) => (
-            <li
-              key={debt.id}
-              className="px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => handleDebtClick(debt.id)}
-            >
-              <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredDebts.map((debt) => (
+          <div
+            key={debt.id}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer"
+            onClick={() => handleDebtClick(debt.id)}
+          >
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    {getStatusIcon(debt.status)}
-                  </div>
-                  <div className="ml-4">
-                    <div className="flex items-center">
-                      <p className="text-sm font-medium text-gray-900">{debt.creditor_name}</p>
-                      <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(debt.status)}`}>
-                        {debt.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500">{debt.description}</p>
-                    {debt.cars && (
-                      <p className="text-xs text-gray-400">
-                        Vehicle: {debt.cars.year} {debt.cars.make} {debt.cars.model}
-                      </p>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    debt.status === 'paid'
+                      ? 'bg-green-100'
+                      : debt.status === 'overdue'
+                        ? 'bg-red-100'
+                        : 'bg-amber-100'
+                  }`}>
+                    {debt.status === 'paid' ? (
+                      <CheckCircle className={`h-6 w-6 text-green-600`} />
+                    ) : debt.status === 'overdue' ? (
+                      <AlertTriangle className={`h-6 w-6 text-red-600`} />
+                    ) : (
+                      <Clock className={`h-6 w-6 text-amber-600`} />
                     )}
-                    <p className="text-xs text-gray-400">
-                      Added {debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}
-                    </p>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="font-semibold text-gray-900 text-lg">{debt.creditor_name}</h3>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      debt.status === 'paid'
+                        ? 'bg-green-100 text-green-800'
+                        : debt.status === 'overdue'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {debt.status.charAt(0).toUpperCase() + debt.status.slice(1)}
+                    </span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(debt.amount, debt.currency)}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Due: {debt.due_date ? formatDate(debt.due_date) : 'No due date'}
                   </p>
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
-        {filteredDebts.length === 0 && (
-          <div className="text-center py-8">
-            <CreditCard className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No debts found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Get started by adding your first debt.'}
-            </p>
+
+              {/* Description */}
+              {debt.description && (
+                <div className="mb-4">
+                  <p className="text-gray-600 text-sm leading-relaxed">{debt.description}</p>
+                </div>
+              )}
+
+              {/* Details */}
+              <div className="space-y-3">
+                {/* Vehicle Info */}
+                {debt.cars && (
+                  <div className="flex items-center text-sm">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                      <CreditCard className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Vehicle</p>
+                      <p className="font-medium text-gray-900">
+                        {debt.cars.year} {debt.cars.make} {debt.cars.model}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Due Date */}
+                <div className="flex items-center text-sm">
+                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                    <Calendar className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Due Date</p>
+                    <p className={`font-medium ${
+                      debt.status === 'overdue' ? 'text-red-600' : 'text-gray-900'
+                    }`}>
+                      {debt.due_date ? formatDate(debt.due_date) : 'No due date'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Created Date */}
+                <div className="flex items-center text-sm">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Clock className="h-4 w-4 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Added</p>
+                    <p className="font-medium text-gray-900">
+                      {debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
+        ))}
       </div>
+      {filteredDebts.length === 0 && (
+        <div className="col-span-full">
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No debts found</h3>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">
+              {searchTerm || statusFilter !== 'all'
+                ? 'Try adjusting your search or filter criteria to find the debts you\'re looking for.'
+                : 'Get started by adding your first debt to track your business obligations.'}
+            </p>
+            {!searchTerm && statusFilter === 'all' && (
+              <button
+                onClick={() => setShowAddDebtModal(true)}
+                className="btn-primary px-6 py-3 rounded-lg font-medium"
+              >
+                <Plus className="h-4 w-4 mr-2 inline" />
+                Add Your First Debt
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Add Debt Modal */}
       <AddDebtModal

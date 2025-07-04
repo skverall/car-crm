@@ -5,15 +5,18 @@ import { createClient } from '@/lib/supabase/client'
 import { Debt } from '@/lib/types/debt'
 import { formatCurrency } from '@/lib/utils/currency'
 import { formatDate, formatRelativeTime } from '@/lib/utils'
-import { 
-  X, 
-  Edit, 
+import {
+  X,
+  Edit,
   Trash2,
   CreditCard,
   Calendar,
   DollarSign,
   User,
-  FileText
+  FileText,
+  CheckCircle,
+  AlertTriangle,
+  Clock
 } from 'lucide-react'
 
 interface DebtDetailModalProps {
@@ -164,40 +167,59 @@ export default function DebtDetailModal({ isOpen, onClose, debtId, onDebtUpdated
   if (!debt) return null
 
   return (
-    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
-      <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl bg-white shadow-lg rounded-md border p-5">
+    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50 flex flex-col min-h-screen">
+      <div className="relative flex-1 full-screen-modal flex flex-col">
+        <div className="w-full flex-1 bg-white p-6 flex flex-col">
           {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center">
-            <CreditCard className="h-8 w-8 text-blue-600 mr-3" />
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900">{debt.creditor_name}</h3>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(debt.status)}`}>
-                {debt.status}
-              </span>
+          <div className="flex justify-between items-start mb-6">
+            <div className="flex items-center">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 ${
+                debt.status === 'paid'
+                  ? 'bg-green-100'
+                  : debt.status === 'overdue'
+                    ? 'bg-red-100'
+                    : 'bg-amber-100'
+              }`}>
+                <CreditCard className={`h-6 w-6 ${
+                  debt.status === 'paid'
+                    ? 'text-green-600'
+                    : debt.status === 'overdue'
+                      ? 'text-red-600'
+                      : 'text-amber-600'
+                }`} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">{debt.creditor_name}</h3>
+                <div className="flex items-center mt-1">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(debt.status)}`}>
+                    {debt.status.charAt(0).toUpperCase() + debt.status.slice(1)}
+                  </span>
+                  <span className="ml-3 text-2xl font-bold text-gray-900">
+                    {formatCurrency(debt.amount, debt.currency)}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="text-gray-400 hover:text-gray-600"
-              title="Edit debt"
-            >
-              <Edit className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="text-red-400 hover:text-red-600"
-              title="Delete debt"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-6 w-6" />
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Edit debt"
+              >
+                <Edit className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete debt"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -287,57 +309,202 @@ export default function DebtDetailModal({ isOpen, onClose, debtId, onDebtUpdated
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <User className="h-5 w-5 text-gray-400 mr-2" />
-                <div>
-                  <p className="text-sm text-gray-500">Creditor</p>
-                  <p className="font-medium">{debt.creditor_name}</p>
+          <div className="space-y-8">
+            {/* Debt Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Amount Card */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-blue-600 bg-blue-200 px-2 py-1 rounded-full">
+                    Amount
+                  </span>
                 </div>
-              </div>
-              
-              <div className="flex items-center">
-                <DollarSign className="h-5 w-5 text-gray-400 mr-2" />
-                <div>
-                  <p className="text-sm text-gray-500">Amount</p>
-                  <p className="font-medium">{formatCurrency(debt.amount, debt.currency)}</p>
+                <div className="space-y-1">
+                  <p className="text-sm text-blue-600 font-medium">Debt Amount</p>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {formatCurrency(debt.amount, debt.currency)}
+                  </p>
+                  <p className="text-xs text-blue-500">Original debt</p>
                 </div>
               </div>
 
-              {debt.due_date && (
-                <div className="flex items-center">
-                  <Calendar className="h-5 w-5 text-gray-400 mr-2" />
-                  <div>
-                    <p className="text-sm text-gray-500">Due Date</p>
-                    <p className="font-medium">{formatDate(debt.due_date)}</p>
+              {/* Due Date Card */}
+              <div className={`bg-gradient-to-br rounded-xl p-6 border ${
+                debt.status === 'overdue'
+                  ? 'from-red-50 to-red-100 border-red-200'
+                  : 'from-amber-50 to-amber-100 border-amber-200'
+              }`}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    debt.status === 'overdue' ? 'bg-red-500' : 'bg-amber-500'
+                  }`}>
+                    <Calendar className="h-5 w-5 text-white" />
                   </div>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    debt.status === 'overdue'
+                      ? 'text-red-600 bg-red-200'
+                      : 'text-amber-600 bg-amber-200'
+                  }`}>
+                    Due Date
+                  </span>
                 </div>
-              )}
+                <div className="space-y-1">
+                  <p className={`text-sm font-medium ${
+                    debt.status === 'overdue' ? 'text-red-600' : 'text-amber-600'
+                  }`}>
+                    {debt.due_date ? 'Due Date' : 'No Due Date'}
+                  </p>
+                  <p className={`text-2xl font-bold ${
+                    debt.status === 'overdue' ? 'text-red-900' : 'text-amber-900'
+                  }`}>
+                    {debt.due_date ? formatDate(debt.due_date) : 'Not Set'}
+                  </p>
+                  <p className={`text-xs ${
+                    debt.status === 'overdue' ? 'text-red-500' : 'text-amber-500'
+                  }`}>
+                    {debt.status === 'overdue' ? 'Past due' : 'Payment deadline'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Card */}
+              <div className={`bg-gradient-to-br rounded-xl p-6 border ${
+                debt.status === 'paid'
+                  ? 'from-green-50 to-green-100 border-green-200'
+                  : debt.status === 'overdue'
+                    ? 'from-red-50 to-red-100 border-red-200'
+                    : 'from-amber-50 to-amber-100 border-amber-200'
+              }`}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    debt.status === 'paid'
+                      ? 'bg-green-500'
+                      : debt.status === 'overdue'
+                        ? 'bg-red-500'
+                        : 'bg-amber-500'
+                  }`}>
+                    {debt.status === 'paid' ? (
+                      <CheckCircle className="h-5 w-5 text-white" />
+                    ) : debt.status === 'overdue' ? (
+                      <AlertTriangle className="h-5 w-5 text-white" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-white" />
+                    )}
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    debt.status === 'paid'
+                      ? 'text-green-600 bg-green-200'
+                      : debt.status === 'overdue'
+                        ? 'text-red-600 bg-red-200'
+                        : 'text-amber-600 bg-amber-200'
+                  }`}>
+                    Status
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <p className={`text-sm font-medium ${
+                    debt.status === 'paid'
+                      ? 'text-green-600'
+                      : debt.status === 'overdue'
+                        ? 'text-red-600'
+                        : 'text-amber-600'
+                  }`}>
+                    Current Status
+                  </p>
+                  <p className={`text-2xl font-bold ${
+                    debt.status === 'paid'
+                      ? 'text-green-900'
+                      : debt.status === 'overdue'
+                        ? 'text-red-900'
+                        : 'text-amber-900'
+                  }`}>
+                    {debt.status.charAt(0).toUpperCase() + debt.status.slice(1)}
+                  </p>
+                  <p className={`text-xs ${
+                    debt.status === 'paid'
+                      ? 'text-green-500'
+                      : debt.status === 'overdue'
+                        ? 'text-red-500'
+                        : 'text-amber-500'
+                  }`}>
+                    {debt.status === 'paid'
+                      ? 'Debt settled'
+                      : debt.status === 'overdue'
+                        ? 'Requires attention'
+                        : 'Awaiting payment'}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {debt.description && (
-                <div className="flex items-start">
-                  <FileText className="h-5 w-5 text-gray-400 mr-2 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Description</p>
-                    <p className="font-medium">{debt.description}</p>
+            {/* Debt Details */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Creditor Information */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <User className="h-5 w-5 mr-2 text-gray-600" />
+                  Creditor Information
+                </h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Creditor Name</span>
+                    <span className="font-semibold text-gray-900">{debt.creditor_name}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Debt Date</span>
+                    <span className="font-medium text-gray-900">{formatDate(debt.debt_date)}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-gray-600 font-medium">Added</span>
+                    <span className="font-medium text-gray-900">
+                      {debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}
+                    </span>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {debt.cars && (
-                <div>
-                  <p className="text-sm text-gray-500">Related Vehicle</p>
-                  <p className="font-medium">{debt.cars.year} {debt.cars.make} {debt.cars.model}</p>
-                  <p className="text-xs text-gray-400">VIN: {debt.cars.vin}</p>
+              {/* Additional Details */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-gray-600" />
+                  Additional Details
+                </h4>
+                <div className="space-y-4">
+                  {debt.description ? (
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <h5 className="font-medium text-blue-900 mb-2">Description</h5>
+                      <p className="text-blue-800 text-sm leading-relaxed">{debt.description}</p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <FileText className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+                      <p className="text-gray-500 text-sm">No description provided</p>
+                    </div>
+                  )}
+
+                  {debt.cars && (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <h5 className="font-medium text-gray-900 mb-2 flex items-center">
+                        <CreditCard className="h-4 w-4 mr-2 text-gray-600" />
+                        Related Vehicle
+                      </h5>
+                      <p className="text-gray-800 font-medium">
+                        {debt.cars.year} {debt.cars.make} {debt.cars.model}
+                      </p>
+                      <p className="text-gray-600 text-sm font-mono">{debt.cars.vin}</p>
+                    </div>
+                  )}
+
+                  {debt.notes && (
+                    <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                      <h5 className="font-medium text-amber-900 mb-2">Notes</h5>
+                      <p className="text-amber-800 text-sm leading-relaxed">{debt.notes}</p>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              <div>
-                <p className="text-sm text-gray-500">Created</p>
-                <p className="font-medium">{debt.created_at ? formatRelativeTime(debt.created_at) : 'Unknown'}</p>
               </div>
             </div>
           </div>
