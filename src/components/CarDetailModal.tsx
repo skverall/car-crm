@@ -121,6 +121,11 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
     return salePriceAED - purchasePriceAED - totalExpensesAED
   }
 
+  // Calculate financial metrics
+  const totalExpenses = calculateTotalExpenses()
+  const totalCost = car ? convertCurrency(car.purchase_price, car.purchase_currency, 'AED') + totalExpenses : 0
+  const profit = calculateProfit()
+
   const handleDeleteCar = async () => {
     if (!car) return
 
