@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car CRM - Enhanced Overview Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .gradient-card {
+            background: linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to));
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50 flex flex-col min-h-screen">
+        <div class="relative flex-1 full-screen-modal flex flex-col">
+            <div class="w-full flex-1 bg-white p-6 flex flex-col">
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-6">
+                    <div class="flex items-center">
+                        <i data-lucide="car" class="h-8 w-8 text-blue-600 mr-3"></i>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">JN1AZ4EH4CM123456</h3>
+                            <p class="text-lg text-gray-600">2017 Nissan Maxima SV</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                For Sale
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="edit" class="h-5 w-5"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="-mb-px flex space-x-8">
+                        <button class="border-blue-500 text-blue-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            Overview
+                        </button>
+                        <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            Expenses (3)
+                        </button>
+                        <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                            Documents (2)
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="space-y-8">
+                    <!-- Financial Overview Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Purchase Price Card -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="dollar-sign" class="h-5 w-5 text-white"></i>
+                                </div>
+                                <span class="text-xs font-medium text-blue-600 bg-blue-200 px-2 py-1 rounded-full">
+                                    Purchase
+                                </span>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-sm text-blue-600 font-medium">Purchase Price</p>
+                                <p class="text-2xl font-bold text-blue-900">AED 26,350.00</p>
+                                <p class="text-xs text-blue-500">Jul 1, 2025</p>
+                            </div>
+                        </div>
+
+                        <!-- Total Expenses Card -->
+                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="receipt" class="h-5 w-5 text-white"></i>
+                                </div>
+                                <span class="text-xs font-medium text-orange-600 bg-orange-200 px-2 py-1 rounded-full">
+                                    Expenses
+                                </span>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-sm text-orange-600 font-medium">Total Expenses</p>
+                                <p class="text-2xl font-bold text-orange-900">AED 4,700.00</p>
+                                <p class="text-xs text-orange-500">3 expenses</p>
+                            </div>
+                        </div>
+
+                        <!-- Total Cost Card -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="calculator" class="h-5 w-5 text-white"></i>
+                                </div>
+                                <span class="text-xs font-medium text-purple-600 bg-purple-200 px-2 py-1 rounded-full">
+                                    Total Cost
+                                </span>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-sm text-purple-600 font-medium">Total Investment</p>
+                                <p class="text-2xl font-bold text-purple-900">AED 31,050.00</p>
+                                <p class="text-xs text-purple-500">Purchase + Expenses</p>
+                            </div>
+                        </div>
+
+                        <!-- For Sale Card -->
+                        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-10 h-10 bg-gray-400 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="target" class="h-5 w-5 text-white"></i>
+                                </div>
+                                <span class="text-xs font-medium text-gray-600 bg-gray-200 px-2 py-1 rounded-full">
+                                    Available
+                                </span>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-sm text-gray-600 font-medium">For Sale</p>
+                                <p class="text-2xl font-bold text-gray-900">AED 37,260.00</p>
+                                <p class="text-xs text-gray-500">Suggested price (+20%)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Information & Transaction History -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Vehicle Specifications -->
+                        <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i data-lucide="car" class="h-5 w-5 mr-2 text-gray-600"></i>
+                                Vehicle Specifications
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">VIN</span>
+                                    <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">JN1AZ4EH4CM123456</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">Make & Model</span>
+                                    <span class="font-semibold text-gray-900">Nissan Maxima SV</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">Year</span>
+                                    <span class="font-semibold text-gray-900">2017</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">Color</span>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 rounded-full border border-gray-300 mr-2 bg-red-500"></div>
+                                        <span class="font-medium text-gray-900">Red</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">Engine</span>
+                                    <span class="font-medium text-gray-900">3.5L V6</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">Fuel Type</span>
+                                    <span class="font-medium text-gray-900">Gasoline</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600 font-medium">Transmission</span>
+                                    <span class="font-medium text-gray-900">Automatic</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-gray-600 font-medium">Mileage</span>
+                                    <span class="font-medium text-gray-900">107,500 km</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transaction History -->
+                        <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i data-lucide="calendar" class="h-5 w-5 mr-2 text-gray-600"></i>
+                                Transaction History
+                            </h4>
+                            <div class="space-y-4">
+                                <!-- Purchase Information -->
+                                <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                            <i data-lucide="dollar-sign" class="h-4 w-4 text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold text-blue-900">Purchase Transaction</h5>
+                                            <p class="text-sm text-blue-600">Jul 1, 2025</p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                            <span class="text-blue-600 font-medium">Amount:</span>
+                                            <p class="font-semibold text-blue-900">AED 26,350.00</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-blue-600 font-medium">Location:</span>
+                                            <p class="font-semibold text-blue-900">Dubai</p>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <span class="text-blue-600 font-medium">Dealer/Supplier:</span>
+                                            <p class="font-semibold text-blue-900">Al Futtaim Motors</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Available for Sale -->
+                                <div class="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center mr-3">
+                                            <i data-lucide="target" class="h-4 w-4 text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold text-amber-900">Available for Sale</h5>
+                                            <p class="text-sm text-amber-600">Ready to be sold</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-amber-600 font-medium">Suggested Price:</span>
+                                        <p class="font-semibold text-amber-900">AED 37,260.00</p>
+                                        <p class="text-xs text-amber-600 mt-1">Based on 20% markup over total cost</p>
+                                    </div>
+                                </div>
+
+                                <!-- Current Location -->
+                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center mr-3">
+                                            <i data-lucide="map-pin" class="h-4 w-4 text-white"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600 font-medium">Current Location:</span>
+                                            <p class="font-semibold text-gray-900">Dubai Showroom</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -13,7 +13,15 @@ import {
   Upload,
   DollarSign,
   Trash2,
-  Car as CarIcon
+  Car as CarIcon,
+  Receipt,
+  Calculator,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  BarChart3,
+  Calendar,
+  MapPin
 } from 'lucide-react'
 import AddExpenseModal from './AddExpenseModal'
 import UploadDocumentModal from './UploadDocumentModal'
@@ -242,133 +250,428 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Vehicle Information */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Vehicle Information</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">VIN:</span>
-                  <span className="font-medium">{car.vin}</span>
+          <div className="space-y-8">
+            {/* Financial Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Purchase Price Card */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-blue-600 bg-blue-200 px-2 py-1 rounded-full">
+                    Purchase
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Make & Model:</span>
-                  <span className="font-medium">{car.make} {car.model}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Year:</span>
-                  <span className="font-medium">{car.year}</span>
-                </div>
-                {car.color && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Color:</span>
-                    <span className="font-medium">{car.color}</span>
-                  </div>
-                )}
-                {car.engine_size && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Engine:</span>
-                    <span className="font-medium">{car.engine_size}</span>
-                  </div>
-                )}
-                {car.fuel_type && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Fuel Type:</span>
-                    <span className="font-medium">{car.fuel_type}</span>
-                  </div>
-                )}
-                {car.transmission && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Transmission:</span>
-                    <span className="font-medium">{car.transmission}</span>
-                  </div>
-                )}
-                {car.mileage && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Mileage:</span>
-                    <span className="font-medium">{car.mileage.toLocaleString()} km</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Financial Information */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Financial Summary</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Purchase Price:</span>
-                  <span className="font-medium">
+                <div className="space-y-1">
+                  <p className="text-sm text-blue-600 font-medium">Purchase Price</p>
+                  <p className="text-2xl font-bold text-blue-900">
                     {formatCurrency(car.purchase_price, car.purchase_currency)}
+                  </p>
+                  <p className="text-xs text-blue-500">{formatDate(car.purchase_date)}</p>
+                </div>
+              </div>
+
+              {/* Total Expenses Card */}
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                    <Receipt className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-orange-600 bg-orange-200 px-2 py-1 rounded-full">
+                    Expenses
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Total Expenses:</span>
-                  <span className="font-medium">
+                <div className="space-y-1">
+                  <p className="text-sm text-orange-600 font-medium">Total Expenses</p>
+                  <p className="text-2xl font-bold text-orange-900">
                     {formatCurrency(totalExpenses, 'AED')}
+                  </p>
+                  <p className="text-xs text-orange-500">{expenses.length} expense{expenses.length !== 1 ? 's' : ''}</p>
+                </div>
+              </div>
+
+              {/* Total Cost Card */}
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <Calculator className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-purple-600 bg-purple-200 px-2 py-1 rounded-full">
+                    Total Cost
                   </span>
                 </div>
-                {car.sale_price && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Sale Price:</span>
-                    <span className="font-medium">
-                      {formatCurrency(car.sale_price, car.sale_currency || 'AED')}
-                    </span>
-                  </div>
-                )}
-                {profit !== null && (
-                  <div className="flex justify-between border-t pt-3">
-                    <span className="text-gray-500">Profit/Loss:</span>
-                    <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {profit >= 0 ? '+' : ''}{formatCurrency(profit, 'AED')}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Purchase & Sale Information */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Purchase Information</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Purchase Date:</span>
-                  <span className="font-medium">{formatDate(car.purchase_date)}</span>
+                <div className="space-y-1">
+                  <p className="text-sm text-purple-600 font-medium">Total Investment</p>
+                  <p className="text-2xl font-bold text-purple-900">
+                    {formatCurrency(totalCost, 'AED')}
+                  </p>
+                  <p className="text-xs text-purple-500">Purchase + Expenses</p>
                 </div>
-                {car.purchase_location && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Purchase Location:</span>
-                    <span className="font-medium">{car.purchase_location}</span>
-                  </div>
-                )}
-                {car.dealer && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Dealer/Supplier:</span>
-                    <span className="font-medium">{car.dealer}</span>
-                  </div>
-                )}
-                {car.sale_date && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Sale Date:</span>
-                    <span className="font-medium">{formatDate(car.sale_date)}</span>
-                  </div>
-                )}
-                {car.location && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Current Location:</span>
-                    <span className="font-medium">{car.location}</span>
-                  </div>
-                )}
               </div>
+
+              {/* Profit/Sale Card */}
+              {car.sale_price ? (
+                <div className={`bg-gradient-to-br ${profit && profit >= 0 ? 'from-green-50 to-green-100 border-green-200' : 'from-red-50 to-red-100 border-red-200'} rounded-xl p-6 border`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`w-10 h-10 ${profit && profit >= 0 ? 'bg-green-500' : 'bg-red-500'} rounded-lg flex items-center justify-center`}>
+                      {profit && profit >= 0 ? (
+                        <TrendingUp className="h-5 w-5 text-white" />
+                      ) : (
+                        <TrendingDown className="h-5 w-5 text-white" />
+                      )}
+                    </div>
+                    <span className={`text-xs font-medium ${profit && profit >= 0 ? 'text-green-600 bg-green-200' : 'text-red-600 bg-red-200'} px-2 py-1 rounded-full`}>
+                      {profit && profit >= 0 ? 'Profit' : 'Loss'}
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className={`text-sm ${profit && profit >= 0 ? 'text-green-600' : 'text-red-600'} font-medium`}>
+                      {profit && profit >= 0 ? 'Net Profit' : 'Net Loss'}
+                    </p>
+                    <p className={`text-2xl font-bold ${profit && profit >= 0 ? 'text-green-900' : 'text-red-900'}`}>
+                      {profit !== null && (
+                        <>
+                          {profit >= 0 ? '+' : ''}{formatCurrency(profit, 'AED')}
+                        </>
+                      )}
+                    </p>
+                    <p className={`text-xs ${profit && profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      Sale: {formatCurrency(car.sale_price, car.sale_currency || 'AED')}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <Target className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-gray-600 bg-gray-200 px-2 py-1 rounded-full">
+                      Available
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600 font-medium">For Sale</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formatCurrency(totalCost * 1.2, 'AED')}
+                    </p>
+                    <p className="text-xs text-gray-500">Suggested price (+20%)</p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Notes */}
-            {car.notes && (
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Notes</h4>
-                <p className="text-gray-700">{car.notes}</p>
+            {/* Detailed Financial Analysis */}
+            {car.sale_price && profit !== null && (
+              <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+                <h4 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2 text-slate-600" />
+                  Financial Analysis
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* ROI */}
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-900 mb-1">
+                      {totalCost > 0 ? ((profit / totalCost) * 100).toFixed(1) : '0.0'}%
+                    </div>
+                    <div className="text-sm text-slate-600 font-medium">Return on Investment</div>
+                    <div className="text-xs text-slate-500 mt-1">
+                      {profit >= 0 ? 'Profitable investment' : 'Loss on investment'}
+                    </div>
+                  </div>
+
+                  {/* Profit Margin */}
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-900 mb-1">
+                      {car.sale_price > 0 ? ((profit / convertCurrency(car.sale_price, car.sale_currency || 'AED', 'AED')) * 100).toFixed(1) : '0.0'}%
+                    </div>
+                    <div className="text-sm text-slate-600 font-medium">Profit Margin</div>
+                    <div className="text-xs text-slate-500 mt-1">
+                      Profit as % of sale price
+                    </div>
+                  </div>
+
+                  {/* Days to Sell */}
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-900 mb-1">
+                      {car.sale_date ? Math.ceil((new Date(car.sale_date).getTime() - new Date(car.purchase_date).getTime()) / (1000 * 60 * 60 * 24)) : '-'}
+                    </div>
+                    <div className="text-sm text-slate-600 font-medium">Days to Sell</div>
+                    <div className="text-xs text-slate-500 mt-1">
+                      {car.sale_date ? 'Purchase to sale' : 'Not sold yet'}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Vehicle Information & Details */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Vehicle Specifications */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <CarIcon className="h-5 w-5 mr-2 text-gray-600" />
+                  Vehicle Specifications
+                </h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">VIN</span>
+                    <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">{car.vin}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Make & Model</span>
+                    <span className="font-semibold text-gray-900">{car.make} {car.model}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Year</span>
+                    <span className="font-semibold text-gray-900">{car.year}</span>
+                  </div>
+                  {car.color && (
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Color</span>
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full border border-gray-300 mr-2" style={{backgroundColor: car.color.toLowerCase()}}></div>
+                        <span className="font-medium text-gray-900 capitalize">{car.color}</span>
+                      </div>
+                    </div>
+                  )}
+                  {car.engine_size && (
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Engine</span>
+                      <span className="font-medium text-gray-900">{car.engine_size}</span>
+                    </div>
+                  )}
+                  {car.fuel_type && (
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Fuel Type</span>
+                      <span className="font-medium text-gray-900 capitalize">{car.fuel_type}</span>
+                    </div>
+                  )}
+                  {car.transmission && (
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Transmission</span>
+                      <span className="font-medium text-gray-900 capitalize">{car.transmission}</span>
+                    </div>
+                  )}
+                  {car.mileage && (
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-gray-600 font-medium">Mileage</span>
+                      <span className="font-medium text-gray-900">{car.mileage.toLocaleString()} km</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Purchase & Transaction Information */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-gray-600" />
+                  Transaction History
+                </h4>
+                <div className="space-y-4">
+                  {/* Purchase Information */}
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                        <DollarSign className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-blue-900">Purchase Transaction</h5>
+                        <p className="text-sm text-blue-600">{formatDate(car.purchase_date)}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-blue-600 font-medium">Amount:</span>
+                        <p className="font-semibold text-blue-900">{formatCurrency(car.purchase_price, car.purchase_currency)}</p>
+                      </div>
+                      {car.purchase_location && (
+                        <div>
+                          <span className="text-blue-600 font-medium">Location:</span>
+                          <p className="font-semibold text-blue-900">{car.purchase_location}</p>
+                        </div>
+                      )}
+                      {car.dealer && (
+                        <div className="md:col-span-2">
+                          <span className="text-blue-600 font-medium">Dealer/Supplier:</span>
+                          <p className="font-semibold text-blue-900">{car.dealer}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Sale Information */}
+                  {car.sale_date && car.sale_price ? (
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                          <TrendingUp className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-green-900">Sale Transaction</h5>
+                          <p className="text-sm text-green-600">{formatDate(car.sale_date)}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-green-600 font-medium">Sale Price:</span>
+                          <p className="font-semibold text-green-900">{formatCurrency(car.sale_price, car.sale_currency || 'AED')}</p>
+                        </div>
+                        <div>
+                          <span className="text-green-600 font-medium">Duration:</span>
+                          <p className="font-semibold text-green-900">
+                            {Math.ceil((new Date(car.sale_date).getTime() - new Date(car.purchase_date).getTime()) / (1000 * 60 * 60 * 24))} days
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center mr-3">
+                          <Target className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-amber-900">Available for Sale</h5>
+                          <p className="text-sm text-amber-600">Ready to be sold</p>
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-amber-600 font-medium">Suggested Price:</span>
+                        <p className="font-semibold text-amber-900">{formatCurrency(totalCost * 1.2, 'AED')}</p>
+                        <p className="text-xs text-amber-600 mt-1">Based on 20% markup over total cost</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Current Location */}
+                  {car.location && (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center mr-3">
+                          <MapPin className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Current Location:</span>
+                          <p className="font-semibold text-gray-900">{car.location}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Expenses & Notes */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Expenses */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Receipt className="h-5 w-5 mr-2 text-gray-600" />
+                    Recent Expenses
+                  </h4>
+                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {expenses.length} total
+                  </span>
+                </div>
+                {expenses.length > 0 ? (
+                  <div className="space-y-3">
+                    {expenses.slice(0, 3).map((expense) => (
+                      <div key={expense.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                            <DollarSign className="h-4 w-4 text-orange-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900 text-sm">
+                              {getCategoryLabel(expense.category)}
+                            </p>
+                            <p className="text-xs text-gray-500">{formatDate(expense.expense_date)}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900">
+                            {formatCurrency(expense.amount, expense.currency)}
+                          </p>
+                          {expense.description && (
+                            <p className="text-xs text-gray-500 truncate max-w-20">
+                              {expense.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {expenses.length > 3 && (
+                      <div className="text-center pt-2">
+                        <button
+                          onClick={() => setActiveTab('expenses')}
+                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          View all {expenses.length} expenses →
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Receipt className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                    <p className="text-gray-500 text-sm">No expenses recorded</p>
+                    <button
+                      onClick={() => setShowAddExpenseModal(true)}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Add first expense
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Notes & Additional Info */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-gray-600" />
+                  Notes & Information
+                </h4>
+                {car.notes ? (
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <h5 className="font-medium text-blue-900 mb-2">Vehicle Notes</h5>
+                      <p className="text-blue-800 text-sm leading-relaxed">{car.notes}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                    <p className="text-gray-500 text-sm">No notes added</p>
+                    <button
+                      onClick={() => setShowEditCarModal(true)}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Add notes
+                    </button>
+                  </div>
+                )}
+
+                {/* Quick Stats */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <h5 className="font-medium text-gray-900 mb-3">Quick Stats</h5>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="font-semibold text-gray-900">{documents.length}</div>
+                      <div className="text-gray-600">Documents</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="font-semibold text-gray-900">
+                        {car.purchase_date ? Math.ceil((new Date().getTime() - new Date(car.purchase_date).getTime()) / (1000 * 60 * 60 * 24)) : 0}
+                      </div>
+                      <div className="text-gray-600">Days Owned</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
