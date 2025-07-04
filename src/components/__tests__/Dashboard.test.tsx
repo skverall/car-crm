@@ -5,7 +5,9 @@ import Dashboard from '../Dashboard'
 import { createClient } from '@/lib/supabase/client'
 
 // Mock the Supabase client
-jest.mock('@/lib/supabase/client')
+jest.mock('@/lib/supabase/client', () => ({
+  createClient: jest.fn()
+}))
 
 // Mock the child components
 jest.mock('../AddCarModal', () => {
