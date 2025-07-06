@@ -197,7 +197,10 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
         {/* Stats - First Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Cars */}
-          <div className="metric-card p-6">
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => onPageChange('inventory')}
+          >
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
@@ -213,7 +216,10 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
           </div>
 
           {/* Cars Sold */}
-          <div className="metric-card p-6">
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => onPageChange('inventory')}
+          >
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
@@ -229,7 +235,10 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
           </div>
 
           {/* Inventory Value */}
-          <div className="metric-card p-6">
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => onPageChange('finance')}
+          >
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
@@ -247,7 +256,10 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
           </div>
 
           {/* Total Revenue */}
-          <div className="metric-card p-6">
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => onPageChange('finance')}
+          >
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -260,6 +272,92 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
                   {formatCurrency(stats.totalSaleValue, 'AED')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">From sales</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats - Second Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Profit */}
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => setShowAnalyticsModal(true)}
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+                  <Target className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Profit</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.totalProfit, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Net earnings</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Average Days to Sell */}
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => setShowAnalyticsModal(true)}
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-xl flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Avg Days to Sell</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.avgDaysToSell}</p>
+                <p className="text-xs text-gray-500 mt-1">Average time</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Sales */}
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => onPageChange('inventory')}
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-xl flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Monthly Sales</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.monthlySales}</p>
+                <p className="text-xs text-gray-500 mt-1">This month</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Methods */}
+          <div
+            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => onPageChange('cash')}
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-rose-400 to-red-500 rounded-xl flex items-center justify-center">
+                  <div className="flex space-x-1">
+                    <Banknote className="h-3 w-3 text-white" />
+                    <CreditCard className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Cash Payments</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatCurrency(stats.cashPayments, 'AED')}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">vs {formatCurrency(stats.bankPayments, 'AED')} bank</p>
               </div>
             </div>
           </div>

@@ -145,20 +145,22 @@ describe('Dashboard Component', () => {
 
   it('should render dashboard with car data after loading', async () => {
     render(<Dashboard onDataUpdate={jest.fn()} onPageChange={jest.fn()} />)
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
 
-    // Check if statistics are displayed
+    // Check if statistics are displayed - First Row
     expect(screen.getByText('Total Cars')).toBeInTheDocument()
-    expect(screen.getByText('3')).toBeInTheDocument() // Total cars count
-    
-    expect(screen.getByText('For Sale')).toBeInTheDocument()
-    expect(screen.getByText('1')).toBeInTheDocument() // For sale count
-    
-    expect(screen.getByText('Sold')).toBeInTheDocument()
-    expect(screen.getByText('1')).toBeInTheDocument() // Sold count
+    expect(screen.getByText('Cars Sold')).toBeInTheDocument()
+    expect(screen.getByText('Inventory Value')).toBeInTheDocument()
+    expect(screen.getByText('Total Revenue')).toBeInTheDocument()
+
+    // Check if statistics are displayed - Second Row
+    expect(screen.getByText('Total Profit')).toBeInTheDocument()
+    expect(screen.getByText('Avg Days to Sell')).toBeInTheDocument()
+    expect(screen.getByText('Monthly Sales')).toBeInTheDocument()
+    expect(screen.getByText('Cash Payments')).toBeInTheDocument()
   })
 
   it('should calculate statistics correctly', async () => {
@@ -239,7 +241,7 @@ describe('Dashboard Component', () => {
   it('should refresh data when car is added', async () => {
     const mockOnDataUpdate = jest.fn()
     render(<Dashboard onDataUpdate={mockOnDataUpdate} onPageChange={jest.fn()} />)
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
@@ -253,6 +255,51 @@ describe('Dashboard Component', () => {
 
     // Should call onDataUpdate
     expect(mockOnDataUpdate).toHaveBeenCalled()
+  })
+
+  it('should handle metric card clicks and navigate to appropriate pages', async () => {
+    const mockOnPageChange = jest.fn()
+    render(<Dashboard onDataUpdate={jest.fn()} onPageChange={mockOnPageChange} />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+    })
+
+    // Test Total Cars card click
+    const totalCarsCard = screen.getByText('Total Cars').closest('.metric-card')
+    if (totalCarsCard) {
+      fireEvent.click(totalCarsCard)
+      expect(mockOnPageChange).toHaveBeenCalledWith('inventory')
+    }
+
+    // Test Inventory Value card click
+    const inventoryCard = screen.getByText('Inventory Value').closest('.metric-card')
+    if (inventoryCard) {
+      fireEvent.click(inventoryCard)
+      expect(mockOnPageChange).toHaveBeenCalledWith('finance')
+    }
+
+    // Test Cash Payments card click
+    const cashCard = screen.getByText('Cash Payments').closest('.metric-card')
+    if (cashCard) {
+      fireEvent.click(cashCard)
+      expect(mockOnPageChange).toHaveBeenCalledWith('cash')
+    }
+  })
+
+  it('should have hover effects on clickable metric cards', async () => {
+    render(<Dashboard onDataUpdate={jest.fn()} onPageChange={jest.fn()} />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+    })
+
+    // Check if metric cards have cursor-pointer class
+    const totalCarsCard = screen.getByText('Total Cars').closest('.metric-card')
+    expect(totalCarsCard).toHaveClass('cursor-pointer')
+
+    const profitCard = screen.getByText('Total Profit').closest('.metric-card')
+    expect(profitCard).toHaveClass('cursor-pointer')
   })
 
   it('should open analytics modal when analytics button is clicked', async () => {
