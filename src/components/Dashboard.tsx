@@ -170,7 +170,7 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 w-full max-w-full overflow-x-hidden">
+    <div className="p-3 sm:p-4 lg:p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8">
         <div className="mb-4 sm:mb-0">
@@ -195,7 +195,7 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
         </div>
       </div>
         {/* Stats - First Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 w-full max-w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Total Cars */}
           <div
             className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"
@@ -278,7 +278,7 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
         </div>
 
         {/* Stats - Second Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 w-full max-w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Total Profit */}
           <div
             className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"

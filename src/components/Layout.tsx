@@ -82,7 +82,7 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
   const navigation = getNavigation()
 
   return (
-    <div className="min-h-screen gradient-bg flex w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen gradient-bg flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -193,9 +193,9 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
       </div>
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-0 w-full max-w-full overflow-x-hidden">
+      <div className="flex-1 lg:ml-0">
         {/* Mobile header */}
-        <div className="lg:hidden modern-card border-b border-white border-opacity-20 mx-2 sm:mx-4 mt-2 sm:mt-4 mb-2 max-w-full">
+        <div className="lg:hidden modern-card border-b border-white border-opacity-20 mx-2 sm:mx-4 mt-2 sm:mt-4 mb-2">
           <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -242,8 +242,8 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-2 sm:p-4 lg:p-6 w-full max-w-full overflow-x-hidden">
-          <div className="modern-card min-h-full w-full max-w-full overflow-x-hidden">
+        <main className="flex-1 p-2 sm:p-4 lg:p-6">
+          <div className="modern-card min-h-full">
             {children}
           </div>
         </main>
