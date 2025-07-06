@@ -441,6 +441,21 @@ export default function InventoryTable({
           />
         ))}
       </div>
+
+      {/* Empty State */}
+      {filteredAndSortedCars.length === 0 && (
+        <div className="modern-card text-center py-16">
+          <div className="w-20 h-20 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CarIcon className="h-10 w-10 text-indigo-600" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">No vehicles found</h3>
+          <p className="text-gray-600 max-w-md mx-auto">
+            {activeFiltersCount > 0
+              ? 'Try adjusting your search or filter criteria to find the vehicles you\'re looking for.'
+              : 'Get started by adding your first vehicle to the inventory.'}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -586,21 +601,3 @@ function MobileCarCard({
         </div>
       )
     }
-
-      {/* Empty State */}
-      {filteredAndSortedCars.length === 0 && (
-        <div className="modern-card text-center py-16">
-          <div className="w-20 h-20 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CarIcon className="h-10 w-10 text-indigo-600" />
-          </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">No vehicles found</h3>
-          <p className="text-gray-600 max-w-md mx-auto">
-            {activeFiltersCount > 0
-              ? 'Try adjusting your search or filter criteria to find the vehicles you\'re looking for.'
-              : 'Get started by adding your first vehicle to the inventory.'}
-          </p>
-        </div>
-      )}
-    </div>
-  )
-}
