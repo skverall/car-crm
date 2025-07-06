@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from './Layout'
 import Dashboard from './Dashboard'
 import ExporterDashboard from './ExporterDashboard'
@@ -20,6 +20,26 @@ export default function MainApp() {
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin'>('dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const { profile, loading } = useUserProfile()
+
+  // Prevent browser back button from leaving the app
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // Prevent default browser back behavior
+      event.preventDefault()
+      // Stay on the current page or go to dashboard
+      window.history.pushState(null, '', window.location.href)
+    }
+
+    // Push initial state
+    window.history.pushState(null, '', window.location.href)
+
+    // Add event listener
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
 
   const handlePageChange = (page: 'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin') => {
     setCurrentPage(page)

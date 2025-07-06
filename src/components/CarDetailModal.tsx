@@ -183,7 +183,24 @@ export default function CarDetailModal({ isOpen, onClose, carId, onCarUpdated }:
           {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
-            <CarIcon className="h-8 w-8 text-blue-600 mr-3" />
+            {car.photo_url ? (
+              <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mr-4 overflow-hidden">
+                <img
+                  src={car.photo_url}
+                  alt={`${car.make} ${car.model}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to icon if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <CarIcon className="h-8 w-8 text-blue-600 hidden" />
+              </div>
+            ) : (
+              <CarIcon className="h-8 w-8 text-blue-600 mr-3" />
+            )}
             <div>
               <h3 className="text-2xl font-bold text-gray-900">{car.vin}</h3>
               <p className="text-lg text-gray-600">{car.year} {car.make} {car.model}</p>

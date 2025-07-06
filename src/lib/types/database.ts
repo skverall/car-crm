@@ -56,6 +56,9 @@ export interface Car {
   location?: string
   notes?: string
 
+  // Photo
+  photo_url?: string
+
   // Metadata
   created_at: string
   updated_at: string
@@ -175,6 +178,7 @@ export interface CarProfitAnalysis {
   model: string
   year: number
   status: CarStatus
+  photo_url?: string
   dealer?: string
   purchase_price: number
   purchase_currency: CurrencyType

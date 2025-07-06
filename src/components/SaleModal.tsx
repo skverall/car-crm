@@ -94,6 +94,12 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
     setError('')
 
     try {
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to sell a vehicle')
+      }
+
       let clientId = formData.client_id
 
       // Create new client if needed
@@ -101,6 +107,7 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
         const { data: newClient, error: clientError } = await supabase
           .from('clients')
           .insert([{
+            user_id: user.id,
             name: formData.new_client_name.trim(),
             email: formData.new_client_email.trim() || null,
             phone: formData.new_client_phone.trim() || null
@@ -110,12 +117,6 @@ export default function SaleModal({ isOpen, onClose, car, onSaleCompleted }: Sal
 
         if (clientError) throw clientError
         clientId = newClient.id
-      }
-
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('You must be logged in to sell a vehicle')
       }
 
       // Update car with sale information (only if it belongs to current user)

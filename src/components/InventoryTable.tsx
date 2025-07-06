@@ -315,8 +315,21 @@ export default function InventoryTable({
                 className="cursor-pointer"
               >
                 <TableCell>
-                  <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm">
-                    <ImageIcon className="h-7 w-7 text-gray-500" />
+                  <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
+                    {car.photo_url ? (
+                      <img
+                        src={car.photo_url}
+                        alt={`${car.make} ${car.model}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to icon if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <ImageIcon className={`h-7 w-7 text-gray-500 ${car.photo_url ? 'hidden' : ''}`} />
                   </div>
                 </TableCell>
                 <TableCell>
@@ -423,8 +436,21 @@ export default function InventoryTable({
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <ImageIcon className="h-8 w-8 text-gray-500" />
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {car.photo_url ? (
+                    <img
+                      src={car.photo_url}
+                      alt={`${car.make} ${car.model}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to icon if image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                  ) : null}
+                  <ImageIcon className={`h-8 w-8 text-gray-500 ${car.photo_url ? 'hidden' : ''}`} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center space-x-2 mb-2">

@@ -503,7 +503,24 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
                 <div className="flex items-center justify-between">
                   <div className="flex items-center min-w-0 flex-1">
                     <div className="flex-shrink-0">
-                      <CarIcon className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
+                      {car.photo_url ? (
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                          <img
+                            src={car.photo_url}
+                            alt={`${car.make} ${car.model}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to icon if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                          <CarIcon className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 hidden" />
+                        </div>
+                      ) : (
+                        <CarIcon className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
+                      )}
                     </div>
                     <div className="ml-3 sm:ml-4 min-w-0 flex-1">
                       <div className="flex items-center flex-wrap">
