@@ -14,7 +14,8 @@ import {
   CheckCircle,
   FileText,
   Camera,
-  Paperclip
+  Paperclip,
+  DollarSign
 } from 'lucide-react'
 
 interface AddExpenseModalAdvancedProps {
