@@ -16,6 +16,7 @@ import AdminPanel from './AdminPanel'
 import AdminRoute from './AdminRoute'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useMobileTestHelper } from './MobileTestHelper'
+import ViewportTestHelper from './ViewportTestHelper'
 
 export default function MainApp() {
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin'>('dashboard')
@@ -103,6 +104,8 @@ export default function MainApp() {
       </Layout>
       {/* Mobile Test Helper - only in development */}
       {process.env.NODE_ENV === 'development' && <TestHelper />}
+      {/* Viewport Test Helper - only in development */}
+      {process.env.NODE_ENV === 'development' && <ViewportTestHelper />}
     </>
   )
 }
