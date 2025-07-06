@@ -92,25 +92,27 @@ export default function ExporterDashboard({ onDataUpdate }: ExporterDashboardPro
   }
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-3 sm:p-4 lg:p-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Export Dashboard</h1>
-        <p className="text-gray-600">Monitor your vehicle export operations</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Export Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600">Monitor your vehicle export operations</p>
       </div>
 
       {/* Export Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6">
+        <div className="modern-card overflow-hidden">
+          <div className="p-4 sm:p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <Package className="h-6 w-6 text-blue-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Package className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-3 sm:ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Ready for Export</dt>
-                  <dd className="text-lg font-medium text-gray-900">{readyForExport}</dd>
+                  <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">Ready for Export</dt>
+                  <dd className="text-lg sm:text-xl font-bold text-gray-900">{readyForExport}</dd>
                 </dl>
               </div>
             </div>

@@ -98,27 +98,27 @@ export default function AddExpenseModal({ isOpen, onClose, carId, onExpenseAdded
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-white overflow-y-auto h-full w-full z-50">
-      <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white shadow-lg rounded-md border p-5">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Add Expense</h3>
+    <div className="fixed inset-0 modal-overlay overflow-y-auto h-full w-full z-50">
+      <div className="relative top-2 sm:top-4 lg:top-20 mx-auto p-2 sm:p-4 lg:p-5 w-full max-w-md lg:max-w-lg mb-2 sm:mb-4 lg:mb-0">
+        <div className="modal-content p-4 sm:p-6">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Add Expense</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 p-2 touch-manipulation rounded-lg hover:bg-gray-100"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Category *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
             <select
               name="category"
               required
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full border border-gray-300 rounded-lg px-3 py-3 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
               value={formData.category}
               onChange={handleInputChange}
             >
@@ -207,18 +207,18 @@ export default function AddExpenseModal({ isOpen, onClose, carId, onExpenseAdded
           )}
 
           {/* Submit Buttons */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-base sm:text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-3 border border-transparent rounded-lg shadow-sm text-base sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 touch-manipulation transition-colors"
             >
               {loading ? 'Adding...' : 'Add Expense'}
             </button>

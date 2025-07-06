@@ -228,6 +228,16 @@ textarea:focus {
   select,
   textarea {
     font-size: 16px !important;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+
+  /* Better form labels */
+  label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
   }
 
   /* Smooth scrolling for mobile */
@@ -238,7 +248,10 @@ textarea:focus {
 
   /* Better button spacing for touch */
   button {
-    min-height: 44px;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 16px;
   }
 
   /* Improve modal positioning on mobile - exclude full-screen modals */
@@ -256,6 +269,24 @@ textarea:focus {
     width: 100vw !important;
     display: flex !important;
     flex-direction: column !important;
+  }
+
+  /* Better spacing for mobile forms */
+  .space-y-4 > * + * {
+    margin-top: 1.5rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 2rem;
+  }
+
+  /* Improved grid gaps for mobile */
+  .gap-4 {
+    gap: 1rem;
+  }
+
+  .gap-6 {
+    gap: 1.5rem;
   }
 }
 
@@ -291,6 +322,40 @@ textarea:focus {
 button:active {
   transform: scale(0.98);
   transition: transform 0.1s ease;
+}
+
+/* Mobile-specific form improvements */
+@media (max-width: 640px) {
+  /* Better select styling */
+  select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    padding-right: 40px;
+  }
+
+  /* Better textarea styling */
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  /* Improved checkbox and radio styling */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+
+  /* Better file input styling */
+  input[type="file"] {
+    padding: 8px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    background-color: #f9fafb;
+  }
 }
 
 /* Smooth transitions */
@@ -410,4 +475,202 @@ button:active {
   background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
   border: 1px solid #fca5a5;
   color: #991b1b;
+}
+
+/* Enhanced touch interactions */
+.touch-card {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.touch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.touch-card:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Swipe indicators */
+.swipe-indicator {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.swipe-indicator:hover::before {
+  left: 100%;
+}
+
+/* Pull to refresh indicator */
+.pull-to-refresh {
+  position: relative;
+  padding-top: 60px;
+  margin-top: -60px;
+  transition: margin-top 0.3s ease;
+}
+
+.pull-to-refresh.pulling {
+  margin-top: 0;
+}
+
+.pull-to-refresh::before {
+  content: '↓ Pull to refresh';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #6b7280;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pull-to-refresh.pulling::before {
+  opacity: 1;
+}
+
+/* Mobile-first responsive design improvements */
+@media (max-width: 480px) {
+  /* Extra small mobile devices */
+  .modern-card {
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  .metric-card {
+    border-radius: 12px;
+  }
+
+  /* Smaller text on very small screens */
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+
+  .text-xl {
+    font-size: 1.25rem;
+  }
+
+  /* Better spacing for small screens */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+
+  .gap-4 {
+    gap: 0.75rem;
+  }
+
+  /* Optimize grid layouts */
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+/* Landscape orientation optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Reduce vertical spacing in landscape */
+  .space-y-4 > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+
+  /* Smaller padding for landscape */
+  .p-6 {
+    padding: 1rem;
+  }
+
+  .py-3 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper borders on high DPI */
+  .modern-card,
+  .metric-card {
+    border-width: 0.5px;
+  }
+
+  /* Better shadows on high DPI */
+  .shadow-lg {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    --foreground: #f8fafc;
+    --card-background: rgba(30, 41, 59, 0.95);
+    --sidebar-background: rgba(30, 41, 59, 0.98);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .metric-card {
+    animation: none !important;
+  }
+}
+
+/* Focus improvements for keyboard navigation */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices - larger focus indicators */
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 3px solid #3b82f6;
+    outline-offset: 2px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .modern-sidebar,
+  .mobile-header,
+  button {
+    display: none !important;
+  }
+
+  .modern-card {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }

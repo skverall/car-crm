@@ -170,24 +170,24 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-4 lg:p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-          <p className="text-gray-600 text-lg">Overview of your vehicle inventory and business performance</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8">
+        <div className="mb-4 sm:mb-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">Dashboard</h1>
+          <p className="text-gray-600 text-sm sm:text-lg">Overview of your vehicle inventory and business performance</p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <button
             onClick={() => setShowAnalyticsModal(true)}
-            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
+            className="btn-primary px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center font-medium touch-manipulation"
           >
             <BarChart3 className="h-5 w-5 mr-2" />
             Analytics
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
+            className="btn-primary px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center font-medium touch-manipulation"
           >
             <Plus className="h-5 w-5 mr-2" />
             Add Car
@@ -195,21 +195,21 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
         </div>
       </div>
         {/* Stats - First Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Total Cars */}
           <div
-            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"
             onClick={() => onPageChange('inventory')}
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <CarIcon className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Cars</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.totalCars}</p>
+              <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Cars</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.totalCars}</p>
                 <p className="text-xs text-gray-500 mt-1">In inventory</p>
               </div>
             </div>
@@ -217,18 +217,18 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
 
           {/* Cars Sold */}
           <div
-            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"
             onClick={() => onPageChange('inventory')}
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Cars Sold</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.sold}</p>
+              <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Cars Sold</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.sold}</p>
                 <p className="text-xs text-gray-500 mt-1">Completed sales</p>
               </div>
             </div>
@@ -236,18 +236,18 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
 
           {/* Inventory Value */}
           <div
-            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"
             onClick={() => onPageChange('finance')}
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
-                  <Package className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Package className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Inventory Value</p>
-                <p className="text-2xl font-bold text-gray-800">
+              <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Inventory Value</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-800">
                   {formatCurrency(stats.stockValue, 'AED')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Total investment</p>
@@ -257,18 +257,18 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
 
           {/* Total Revenue */}
           <div
-            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"
             onClick={() => onPageChange('finance')}
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-800">
+              <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-800">
                   {formatCurrency(stats.totalSaleValue, 'AED')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">From sales</p>
@@ -278,16 +278,16 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
         </div>
 
         {/* Stats - Second Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Total Profit */}
           <div
-            className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            className="metric-card p-4 sm:p-6 cursor-pointer hover:scale-105 transition-transform duration-200 touch-manipulation"
             onClick={() => setShowAnalyticsModal(true)}
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
-                  <Target className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+                  <Target className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
               <div className="ml-4 flex-1">

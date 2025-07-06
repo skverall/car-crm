@@ -5,6 +5,9 @@ import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency, convertCurrency } from '@/lib/utils/currency'
 import { getStatusColor, getStatusLabel } from '@/lib/utils'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useSwipe } from '@/hooks/useSwipe'
+import { useImageOptimization, useReducedMotion } from '@/hooks/useMobileOptimization'
+import { LazyImage } from './ui/LazyImage'
 import { 
   Table, 
   TableHeader, 
@@ -20,10 +23,10 @@ import {
   FilterRange, 
   SearchInput 
 } from './ui/filters'
-import { 
-  Edit, 
-  Eye, 
-  Trash2, 
+import {
+  Edit,
+  Eye,
+  Trash2,
   Car as CarIcon,
   Image as ImageIcon
 } from 'lucide-react'
@@ -50,12 +53,12 @@ interface Filters {
   priceMax: string
 }
 
-export default function InventoryTable({ 
-  cars, 
-  onCarClick, 
-  onEditCar, 
+export default function InventoryTable({
+  cars,
+  onCarClick,
+  onEditCar,
   onDeleteCar,
-  loading = false 
+  loading = false
 }: InventoryTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null)
@@ -68,6 +71,8 @@ export default function InventoryTable({
     priceMin: '',
     priceMax: ''
   })
+
+  const { getOptimalImageFormat, shouldLoadImages } = useImageOptimization()
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
@@ -315,21 +320,19 @@ export default function InventoryTable({
                 className="cursor-pointer"
               >
                 <TableCell>
-                  <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
-                    {car.photo_url ? (
-                      <img
-                        src={car.photo_url}
+                  <div className="w-14 h-14 rounded-xl shadow-sm overflow-hidden">
+                    {car.photo_url && shouldLoadImages ? (
+                      <LazyImage
+                        src={getOptimalImageFormat(car.photo_url)}
                         alt={`${car.make} ${car.model}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          // Fallback to icon if image fails to load
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          target.nextElementSibling?.classList.remove('hidden');
-                        }}
+                        className="w-full h-full"
+                        fallbackIcon={<ImageIcon className="h-7 w-7 text-gray-500" />}
                       />
-                    ) : null}
-                    <ImageIcon className={`h-7 w-7 text-gray-500 ${car.photo_url ? 'hidden' : ''}`} />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <ImageIcon className="h-7 w-7 text-gray-500" />
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -427,66 +430,127 @@ export default function InventoryTable({
       </div>
 
       {/* Mobile Cards */}
-      <div className="lg:hidden space-y-4">
+      <div className="lg:hidden space-y-3 sm:space-y-4">
         {filteredAndSortedCars.map((car) => (
-          <div
+          <MobileCarCard
             key={car.id}
-            className="modern-card p-6 space-y-4 touch-manipulation cursor-pointer hover:shadow-lg transition-all duration-200"
-            onClick={() => onCarClick(car.id)}
+            car={car}
+            onCarClick={onCarClick}
+            onEditCar={onEditCar}
+            onDeleteCar={onDeleteCar}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Mobile Car Card Component with Swipe Support
+function MobileCarCard({
+  car,
+  onCarClick,
+  onEditCar,
+  onDeleteCar
+}: {
+  car: CarProfitAnalysis
+  onCarClick: (id: string) => void
+  onEditCar?: (id: string) => void
+  onDeleteCar?: (id: string) => void
+}) {
+  const [showActions, setShowActions] = useState(false)
+  const { getOptimalImageFormat, shouldLoadImages } = useImageOptimization()
+  const { shouldReduceMotion, animationDuration } = useReducedMotion()
+
+  const swipeRef = useSwipe({
+    onSwipeLeft: () => setShowActions(true),
+    onSwipeRight: () => setShowActions(false)
+  }, { threshold: 50 })
+
+  const calculateTotalCost = (car: CarProfitAnalysis): number => {
+    const purchaseInAED = convertCurrency(car.purchase_price, car.purchase_currency, 'AED')
+    const expensesInAED = car.total_expenses || 0
+    return purchaseInAED + expensesInAED
+  }
+
+  return (
+    <div
+      ref={swipeRef}
+      className={`modern-card touch-card relative overflow-hidden ${
+        shouldReduceMotion ? '' : 'transition-all'
+      } ${showActions ? 'transform -translate-x-20' : ''}`}
+      style={{
+        transitionDuration: shouldReduceMotion ? '0ms' : `${animationDuration}ms`
+      }}
+      onClick={() => onCarClick(car.id)}
+    >
+      {/* Swipe Actions */}
+      {showActions && (
+        <div className="absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-red-500 to-red-400 flex items-center justify-center">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDeleteCar?.(car.id)
+              setShowActions(false)
+            }}
+            className="text-white p-2 rounded-full hover:bg-red-600 transition-colors"
           >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
             <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {car.photo_url ? (
-                    <img
-                      src={car.photo_url}
+              <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex-shrink-0 overflow-hidden">
+                  {car.photo_url && shouldLoadImages ? (
+                    <LazyImage
+                      src={getOptimalImageFormat(car.photo_url)}
                       alt={`${car.make} ${car.model}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to icon if image fails to load
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.nextElementSibling?.classList.remove('hidden');
-                      }}
+                      className="w-full h-full"
+                      fallbackIcon={<ImageIcon className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500" />}
                     />
-                  ) : null}
-                  <ImageIcon className={`h-8 w-8 text-gray-500 ${car.photo_url ? 'hidden' : ''}`} />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <ImageIcon className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500" />
+                    </div>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                      <CarIcon className="h-4 w-4 text-white" />
+                  <div className="flex items-center space-x-2 mb-1 sm:mb-2">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <CarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 truncate">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                       {car.year} {car.make} {car.model}
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">{car.vin}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded truncate">{car.vin}</p>
                 </div>
               </div>
-              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusColor(car.status)}`}>
+              <span className={`inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold flex-shrink-0 ml-2 ${getStatusColor(car.status)}`}>
                 {getStatusLabel(car.status)}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
+              <div className="bg-gray-50 p-2 sm:p-3 rounded-lg">
                 <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Purchase</span>
-                <div className="font-semibold text-gray-800 mt-1">{formatCurrency(car.purchase_price, car.purchase_currency)}</div>
+                <div className="font-semibold text-gray-800 mt-1 text-sm sm:text-base">{formatCurrency(car.purchase_price, car.purchase_currency)}</div>
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-gray-50 p-2 sm:p-3 rounded-lg">
                 <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Total Cost</span>
-                <div className="font-semibold text-gray-800 mt-1">{formatCurrency(calculateTotalCost(car), 'AED')}</div>
+                <div className="font-semibold text-gray-800 mt-1 text-sm sm:text-base">{formatCurrency(calculateTotalCost(car), 'AED')}</div>
               </div>
               {car.sale_price && (
                 <>
-                  <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="bg-blue-50 p-2 sm:p-3 rounded-lg">
                     <span className="text-xs text-blue-600 uppercase tracking-wide font-medium">Sale Price</span>
-                    <div className="font-semibold text-blue-800 mt-1">{formatCurrency(car.sale_price, car.sale_currency)}</div>
+                    <div className="font-semibold text-blue-800 mt-1 text-sm sm:text-base">{formatCurrency(car.sale_price, car.sale_currency)}</div>
                   </div>
-                  <div className={`p-3 rounded-lg ${car.profit_aed && car.profit_aed >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                  <div className={`p-2 sm:p-3 rounded-lg ${car.profit_aed && car.profit_aed >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
                     <span className={`text-xs uppercase tracking-wide font-medium ${car.profit_aed && car.profit_aed >= 0 ? 'text-green-600' : 'text-red-600'}`}>Profit</span>
-                    <div className={`font-semibold mt-1 ${car.profit_aed && car.profit_aed >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                    <div className={`font-semibold mt-1 text-sm sm:text-base ${car.profit_aed && car.profit_aed >= 0 ? 'text-green-800' : 'text-red-800'}`}>
                       {car.profit_aed !== null ? formatCurrency(car.profit_aed, 'AED') : '—'}
                     </div>
                   </div>
@@ -494,13 +558,13 @@ export default function InventoryTable({
               )}
             </div>
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4 border-t border-gray-200">
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   onCarClick(car.id)
                 }}
-                className="flex items-center space-x-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
+                className="flex items-center justify-center space-x-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
               >
                 <Eye className="h-4 w-4" />
                 <span>View</span>
@@ -511,28 +575,17 @@ export default function InventoryTable({
                     e.stopPropagation()
                     onEditCar(car.id)
                   }}
-                  className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
+                  className="flex items-center justify-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
                 >
                   <Edit className="h-4 w-4" />
                   <span>Edit</span>
                 </button>
               )}
-              {onDeleteCar && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDeleteCar(car.id)
-                  }}
-                  className="flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium touch-manipulation py-2.5 px-4 rounded-lg transition-all duration-200"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Delete</span>
-                </button>
-              )}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )
+    }
 
       {/* Empty State */}
       {filteredAndSortedCars.length === 0 && (

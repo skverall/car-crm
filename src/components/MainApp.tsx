@@ -15,11 +15,13 @@ import RoleDebug from './RoleDebug'
 import AdminPanel from './AdminPanel'
 import AdminRoute from './AdminRoute'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { useMobileTestHelper } from './MobileTestHelper'
 
 export default function MainApp() {
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'inventory' | 'finance' | 'cash' | 'customers' | 'debts' | 'market-prices' | 'admin'>('dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const { profile, loading } = useUserProfile()
+  const { TestHelper } = useMobileTestHelper()
 
   // Prevent browser back button from leaving the app
   useEffect(() => {
@@ -95,8 +97,12 @@ export default function MainApp() {
   }
 
   return (
-    <Layout currentPage={currentPage} onPageChange={handlePageChange} userProfile={profile}>
-      {renderCurrentPage()}
-    </Layout>
+    <>
+      <Layout currentPage={currentPage} onPageChange={handlePageChange} userProfile={profile}>
+        {renderCurrentPage()}
+      </Layout>
+      {/* Mobile Test Helper - only in development */}
+      {process.env.NODE_ENV === 'development' && <TestHelper />}
+    </>
   )
 }

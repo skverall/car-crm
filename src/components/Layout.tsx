@@ -94,17 +94,17 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
       <div className={`fixed inset-y-0 left-0 z-50 w-64 modern-sidebar transform ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-white border-opacity-20">
-          <div className="flex flex-col">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6 border-b border-white border-opacity-20">
+          <div className="flex flex-col min-w-0 flex-1">
             <button
               onClick={() => onPageChange('dashboard')}
-              className="flex items-center cursor-pointer"
+              className="flex items-center cursor-pointer touch-manipulation"
             >
-              <CarIcon className="h-8 w-8 text-indigo-600 mr-3" />
-              <h1 className="text-xl font-bold text-gray-800">DM Motion CRM</h1>
+              <CarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-600 mr-2 sm:mr-3 flex-shrink-0" />
+              <h1 className="text-lg sm:text-xl font-bold text-gray-800 truncate">DM Motion CRM</h1>
             </button>
             {userProfile && (
-              <div className="flex items-center mt-1 ml-11">
+              <div className="flex items-center mt-1 ml-8 sm:ml-11">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                   userProfile.role === 'exporter'
                     ? 'bg-purple-100 text-purple-700'
@@ -117,7 +117,7 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
+            className="lg:hidden text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-white hover:bg-opacity-50 touch-manipulation flex-shrink-0"
           >
             <X className="h-6 w-6" />
           </button>
@@ -195,24 +195,24 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
       {/* Main content */}
       <div className="flex-1 lg:ml-0">
         {/* Mobile header */}
-        <div className="lg:hidden modern-card border-b border-white border-opacity-20 mx-4 mt-4 mb-2">
-          <div className="flex items-center justify-between h-16 px-4">
+        <div className="lg:hidden modern-card border-b border-white border-opacity-20 mx-2 sm:mx-4 mt-2 sm:mt-4 mb-2">
+          <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-600 hover:text-gray-800 active:text-gray-900 p-2 -ml-2 touch-manipulation rounded-lg hover:bg-white hover:bg-opacity-50"
+              className="text-gray-600 hover:text-gray-800 active:text-gray-900 p-2 -ml-2 touch-manipulation rounded-lg hover:bg-white hover:bg-opacity-50 flex-shrink-0"
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0 flex-1 justify-center">
               <button
                 onClick={() => onPageChange('dashboard')}
-                className="flex items-center cursor-pointer touch-manipulation mr-3"
+                className="flex items-center cursor-pointer touch-manipulation"
               >
-                <CarIcon className="h-6 w-6 text-indigo-600 mr-2" />
-                <h1 className="text-base sm:text-lg font-bold text-gray-800">DM Motion CRM</h1>
+                <CarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 mr-1 sm:mr-2 flex-shrink-0" />
+                <h1 className="text-sm sm:text-base font-bold text-gray-800 truncate">DM Motion CRM</h1>
               </button>
               {currentUser && userProfile && (
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                <span className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
                   userProfile.role === 'exporter'
                     ? 'bg-purple-100 text-purple-800'
                     : 'bg-blue-100 text-blue-800'
@@ -221,10 +221,10 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
                 </span>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               {currentUser && (
                 <div className="flex items-center">
-                  <div className="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center">
+                  <div className="h-6 w-6 sm:h-7 sm:w-7 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs font-medium">
                       {(userProfile?.full_name || currentUser.email || 'U').charAt(0).toUpperCase()}
                     </span>
@@ -233,7 +233,7 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
               )}
               <button
                 onClick={handleSignOut}
-                className="text-gray-400 hover:text-gray-600 active:text-gray-800 p-2 touch-manipulation"
+                className="text-gray-400 hover:text-gray-600 active:text-gray-800 p-2 touch-manipulation rounded-lg hover:bg-white hover:bg-opacity-50"
               >
                 <LogOut className="h-5 w-5" />
               </button>
@@ -242,7 +242,7 @@ export default function Layout({ children, currentPage, onPageChange, userProfil
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-2 sm:p-4 lg:p-6">
           <div className="modern-card min-h-full">
             {children}
           </div>
