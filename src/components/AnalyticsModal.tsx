@@ -5,25 +5,39 @@ import { createClient } from '@/lib/supabase/client'
 import { CarProfitAnalysis } from '@/lib/types/database'
 import { formatCurrency } from '@/lib/utils/currency'
 
-import { 
-  X, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  X,
+  TrendingUp,
+  TrendingDown,
   DollarSign,
   Calendar,
   BarChart3,
-
+  Download,
+  Filter,
+  RefreshCw,
+  ZoomIn,
+  Eye,
+  FileText,
+  PieChart,
+  Activity
 } from 'lucide-react'
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart as RechartsPieChart,
-  Cell
+  Cell,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  ComposedChart,
+  Legend,
+  Pie
 } from 'recharts'
 
 interface AnalyticsModalProps {
@@ -34,6 +48,10 @@ interface AnalyticsModalProps {
 export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps) {
   const [cars, setCars] = useState<CarProfitAnalysis[]>([])
   const [loading, setLoading] = useState(false)
+  const [activeView, setActiveView] = useState<'overview' | 'trends' | 'performance' | 'comparison'>('overview')
+  const [selectedMetric, setSelectedMetric] = useState<'profit' | 'revenue' | 'expenses'>('profit')
+  const [chartType, setChartType] = useState<'bar' | 'line' | 'area'>('bar')
+  const [drillDownData, setDrillDownData] = useState<any>(null)
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0], // Start of year
     endDate: new Date().toISOString().split('T')[0] // Today
@@ -73,6 +91,45 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
       fetchAnalyticsData()
     }
   }, [isOpen, dateRange, fetchAnalyticsData])
+
+  const exportToCSV = () => {
+    const csvData = [
+      ['Analytics Report', `${dateRange.startDate} to ${dateRange.endDate}`],
+      [''],
+      ['Summary Metrics'],
+      ['Total Profit', totalProfit.toFixed(2)],
+      ['Average Profit', avgProfit.toFixed(2)],
+      ['Average Days to Sell', avgDaysToSell.toFixed(0)],
+      ['Cars Sold', soldCars.length.toString()],
+      [''],
+      ['Monthly Data'],
+      ['Month', 'Profit', 'Cars Sold'],
+      ...chartData.map(item => [item.month, item.profit.toFixed(2), item.count.toString()]),
+      [''],
+      ['Top Profitable Cars'],
+      ['Vehicle', 'Purchase Price', 'Sale Price', 'Profit', 'Days to Sell'],
+      ...topProfitableCars.map(car => [
+        `${car.year} ${car.make} ${car.model}`,
+        car.purchase_price?.toString() || '0',
+        car.sale_price?.toString() || '0',
+        car.profit_aed?.toString() || '0',
+        car.days_to_sell?.toString() || '0'
+      ])
+    ]
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `analytics-report-${dateRange.startDate}-${dateRange.endDate}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const handleChartClick = (data: any) => {
+    setDrillDownData(data)
+  }
 
   if (!isOpen) return null
 
@@ -166,37 +223,131 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
             <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-3xl font-bold text-gray-800">Analytics & Reports</h3>
+            <h3 className="text-3xl font-bold text-gray-800">Advanced Analytics</h3>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
-          >
-            <X className="h-6 w-6" />
-          </button>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={exportToCSV}
+              className="btn-primary px-4 py-2 rounded-lg flex items-center text-sm"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </button>
+            <button
+              onClick={fetchAnalyticsData}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center text-sm"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </button>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
         </div>
 
-        {/* Date Range Filter */}
+        {/* Controls */}
         <div className="mb-8 modern-card p-6">
-          <h4 className="text-lg font-semibold text-gray-800 mb-4">Date Range Filter</h4>
-          <div className="flex items-center space-x-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Date Range Filter */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
-              <input
-                type="date"
-                value={dateRange.startDate}
-                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                className="block border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-              />
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Date Range</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
+                  <input
+                    type="date"
+                    value={dateRange.startDate}
+                    onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
+                  <input
+                    type="date"
+                    value={dateRange.endDate}
+                    onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* View Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
-              <input
-                type="date"
-                value={dateRange.endDate}
-                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                className="block border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-              />
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">View</h4>
+              <div className="space-y-2">
+                {[
+                  { id: 'overview', name: 'Overview', icon: Eye },
+                  { id: 'trends', name: 'Trends', icon: TrendingUp },
+                  { id: 'performance', name: 'Performance', icon: Activity },
+                  { id: 'comparison', name: 'Comparison', icon: BarChart3 }
+                ].map((view) => {
+                  const Icon = view.icon
+                  return (
+                    <button
+                      key={view.id}
+                      onClick={() => setActiveView(view.id as any)}
+                      className={`w-full flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        activeView === view.id
+                          ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 mr-2" />
+                      {view.name}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Chart Controls */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Chart Options</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Metric</label>
+                  <select
+                    value={selectedMetric}
+                    onChange={(e) => setSelectedMetric(e.target.value as any)}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="profit">Profit</option>
+                    <option value="revenue">Revenue</option>
+                    <option value="expenses">Expenses</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Chart Type</label>
+                  <div className="flex space-x-2">
+                    {[
+                      { id: 'bar', icon: BarChart3 },
+                      { id: 'line', icon: TrendingUp },
+                      { id: 'area', icon: Activity }
+                    ].map((type) => {
+                      const Icon = type.icon
+                      return (
+                        <button
+                          key={type.id}
+                          onClick={() => setChartType(type.id as any)}
+                          className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            chartType === type.id
+                              ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                              : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -264,50 +415,177 @@ export default function AnalyticsModal({ isOpen, onClose }: AnalyticsModalProps)
               </div>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Monthly Profit Chart */}
+            {/* Interactive Charts */}
+            <div className="space-y-6">
+              {/* Main Chart */}
               <div className="modern-card p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">Monthly Profit Trend</h4>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value: number) => [formatCurrency(value, 'AED'), 'Profit']}
-                    />
-                    <Bar dataKey="profit" fill="#3B82F6" />
-                  </BarChart>
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-lg font-semibold text-gray-800">
+                    {selectedMetric.charAt(0).toUpperCase() + selectedMetric.slice(1)} Trend
+                  </h4>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setDrillDownData(null)}
+                      className="text-sm text-indigo-600 hover:text-indigo-800"
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <ResponsiveContainer width="100%" height={400}>
+                  {chartType === 'bar' ? (
+                    <BarChart data={chartData} onClick={handleChartClick}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value: number) => [formatCurrency(value, 'AED'), selectedMetric]}
+                      />
+                      <Legend />
+                      <Bar
+                        dataKey={selectedMetric === 'profit' ? 'profit' : selectedMetric === 'revenue' ? 'profit' : 'count'}
+                        fill="#3B82F6"
+                        cursor="pointer"
+                      />
+                    </BarChart>
+                  ) : chartType === 'line' ? (
+                    <LineChart data={chartData} onClick={handleChartClick}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value: number) => [formatCurrency(value, 'AED'), selectedMetric]}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey={selectedMetric === 'profit' ? 'profit' : selectedMetric === 'revenue' ? 'profit' : 'count'}
+                        stroke="#3B82F6"
+                        strokeWidth={3}
+                        dot={{ fill: '#3B82F6', strokeWidth: 2, r: 6 }}
+                      />
+                    </LineChart>
+                  ) : (
+                    <AreaChart data={chartData} onClick={handleChartClick}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value: number) => [formatCurrency(value, 'AED'), selectedMetric]}
+                      />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey={selectedMetric === 'profit' ? 'profit' : selectedMetric === 'revenue' ? 'profit' : 'count'}
+                        stroke="#3B82F6"
+                        fill="#3B82F6"
+                        fillOpacity={0.6}
+                      />
+                    </AreaChart>
+                  )}
                 </ResponsiveContainer>
               </div>
 
-              {/* Status Distribution */}
-              <div className="modern-card p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">Inventory Status</h4>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RechartsPieChart>
-                    <Tooltip />
-                    <RechartsPieChart data={statusData}>
-                      {statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
+              {/* Secondary Charts Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Enhanced Status Distribution */}
+                <div className="modern-card p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <PieChart className="h-5 w-5 mr-2" />
+                    Inventory Status Distribution
+                  </h4>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={statusData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {statusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
                     </RechartsPieChart>
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {statusData.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div 
-                          className="w-3 h-3 rounded-full mr-2" 
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="text-sm text-gray-600">{item.name}</span>
+                  </ResponsiveContainer>
+                  <div className="mt-4 space-y-2">
+                    {statusData.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <div
+                            className="w-4 h-4 rounded-full mr-3"
+                            style={{ backgroundColor: item.color }}
+                          ></div>
+                          <span className="text-sm font-medium text-gray-700">{item.name}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-bold text-gray-800">{item.value}</span>
+                          <span className="text-xs text-gray-500 ml-1">
+                            ({((item.value / cars.length) * 100).toFixed(1)}%)
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">{item.value}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Performance Metrics */}
+                <div className="modern-card p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Activity className="h-5 w-5 mr-2" />
+                    Performance Metrics
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-green-800">Profit Margin</span>
+                        <span className="text-lg font-bold text-green-600">
+                          {totalProfit > 0 ? ((totalProfit / (totalProfit + 100000)) * 100).toFixed(1) : '0.0'}%
+                        </span>
+                      </div>
+                      <div className="mt-2 w-full bg-green-200 rounded-full h-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${Math.min(((totalProfit / (totalProfit + 100000)) * 100), 100)}%` }}
+                        ></div>
+                      </div>
                     </div>
-                  ))}
+
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-blue-800">Sales Velocity</span>
+                        <span className="text-lg font-bold text-blue-600">
+                          {avgDaysToSell > 0 ? (30 / avgDaysToSell).toFixed(1) : '0.0'}/month
+                        </span>
+                      </div>
+                      <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${Math.min((30 / avgDaysToSell) * 10, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-purple-800">Success Rate</span>
+                        <span className="text-lg font-bold text-purple-600">
+                          {cars.length > 0 ? ((soldCars.length / cars.length) * 100).toFixed(1) : '0.0'}%
+                        </span>
+                      </div>
+                      <div className="mt-2 w-full bg-purple-200 rounded-full h-2">
+                        <div
+                          className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${cars.length > 0 ? (soldCars.length / cars.length) * 100 : 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

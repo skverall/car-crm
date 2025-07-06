@@ -3,6 +3,8 @@ export type ExpenseCategory = 'purchase' | 'transport' | 'customs' | 'repair' | 
 export type CurrencyType = 'AED' | 'USD' | 'EUR' | 'GBP'
 export type UserRole = 'importer' | 'exporter' | 'admin'
 export type PaymentMethod = 'cash' | 'bank_card'
+export type BudgetPeriod = 'monthly' | 'quarterly' | 'yearly'
+export type BudgetStatus = 'active' | 'completed' | 'cancelled'
 
 // Market Prices Types
 export type VehicleCondition = 'excellent' | 'good' | 'fair' | 'poor'
@@ -199,6 +201,35 @@ export interface UserProfile {
   phone?: string
   created_at: string
   updated_at: string
+}
+
+export interface Budget {
+  id: string
+  user_id: string
+  name: string
+  description?: string
+  period: BudgetPeriod
+  start_date: string
+  end_date: string
+  status: BudgetStatus
+  created_at: string
+  updated_at: string
+}
+
+export interface BudgetCategory {
+  id: string
+  budget_id: string
+  category: ExpenseCategory
+  allocated_amount: number
+  currency: CurrencyType
+  spent_amount?: number
+  remaining_amount?: number
+  variance_percentage?: number
+  created_at: string
+  updated_at: string
+
+  // Relations
+  budget?: Budget
 }
 
 export interface MarketPrice {

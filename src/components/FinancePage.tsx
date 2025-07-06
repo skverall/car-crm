@@ -12,11 +12,26 @@ import {
   Receipt,
   Search,
   Filter,
-  BarChart3
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  PieChart,
+  Calendar,
+  AlertTriangle,
+  CheckCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Percent,
+  FileText,
+  Calculator
 } from 'lucide-react'
 import AddExpenseModalAdvanced from './AddExpenseModalAdvanced'
 import AnalyticsModal from './AnalyticsModal'
 import ExpenseDetailModal from './ExpenseDetailModal'
+import FinancialReportsModal from './FinancialReportsModal'
+import BudgetManagementModal from './BudgetManagementModal'
+import TaxManagementModal from './TaxManagementModal'
 
 interface FinancePageProps {
   onDataUpdate?: () => void
@@ -29,16 +44,152 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
   const [activeTab, setActiveTab] = useState<'car-expenses' | 'other-expenses'>('car-expenses')
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false)
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
+  const [showReportsModal, setShowReportsModal] = useState(false)
+  const [showBudgetModal, setShowBudgetModal] = useState(false)
+  const [showTaxModal, setShowTaxModal] = useState(false)
   const [selectedCarId, setSelectedCarId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null)
+  const [financialMetrics, setFinancialMetrics] = useState({
+    totalRevenue: 0,
+    totalExpenses: 0,
+    netProfit: 0,
+    profitMargin: 0,
+    roi: 0,
+    avgDaysToSell: 0,
+    cashFlow: 0,
+    monthlyGrowth: 0,
+    expenseGrowth: 0,
+    activeCars: 0,
+    soldCarsThisMonth: 0,
+    pendingExpenses: 0
+  })
   const supabase = createClient()
 
   useEffect(() => {
     fetchData()
+    calculateFinancialMetrics()
   }, [])
+
+  const calculateFinancialMetrics = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Get current month dates
+      const now = new Date()
+      const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
+      const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0).toISOString()
+
+      // Fetch car profit analysis for revenue and profit calculations
+      const { data: carAnalysis } = await supabase
+        .from('car_profit_analysis')
+        .select('*')
+        .eq('user_id', user.id)
+
+      // Fetch all expenses for expense calculations
+      const { data: allExpenses } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('user_id', user.id)
+
+      // Fetch current month data
+      const { data: currentMonthCars } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'sold')
+        .gte('sale_date', currentMonthStart)
+
+      const { data: lastMonthCars } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'sold')
+        .gte('sale_date', lastMonthStart)
+        .lte('sale_date', lastMonthEnd)
+
+      // Calculate metrics
+      const soldCars = carAnalysis?.filter(car => car.status === 'sold') || []
+      const totalRevenue = soldCars.reduce((sum, car) => {
+        if (!car.sale_price) return sum
+        // Convert to AED
+        const rate = car.sale_currency === 'USD' ? 3.67 :
+                    car.sale_currency === 'EUR' ? 4.00 :
+                    car.sale_currency === 'GBP' ? 4.60 : 1
+        return sum + (car.sale_price * rate)
+      }, 0)
+
+      const totalExpenses = allExpenses?.reduce((sum, expense) => {
+        const rate = expense.currency === 'USD' ? 3.67 :
+                    expense.currency === 'EUR' ? 4.00 :
+                    expense.currency === 'GBP' ? 4.60 : 1
+        return sum + (expense.amount * rate)
+      }, 0) || 0
+
+      const netProfit = soldCars.reduce((sum, car) => sum + (car.profit_aed || 0), 0)
+      const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0
+
+      // Calculate ROI (Return on Investment)
+      const totalInvestment = soldCars.reduce((sum, car) => {
+        const rate = car.purchase_currency === 'USD' ? 3.67 :
+                    car.purchase_currency === 'EUR' ? 4.00 :
+                    car.purchase_currency === 'GBP' ? 4.60 : 1
+        return sum + (car.purchase_price * rate)
+      }, 0)
+      const roi = totalInvestment > 0 ? (netProfit / totalInvestment) * 100 : 0
+
+      const avgDaysToSell = soldCars.length > 0 ?
+        soldCars.reduce((sum, car) => sum + (car.days_to_sell || 0), 0) / soldCars.length : 0
+
+      // Calculate monthly growth
+      const currentMonthRevenue = currentMonthCars?.reduce((sum, car) => {
+        if (!car.sale_price) return sum
+        const rate = car.sale_currency === 'USD' ? 3.67 :
+                    car.sale_currency === 'EUR' ? 4.00 :
+                    car.sale_currency === 'GBP' ? 4.60 : 1
+        return sum + (car.sale_price * rate)
+      }, 0) || 0
+
+      const lastMonthRevenue = lastMonthCars?.reduce((sum, car) => {
+        if (!car.sale_price) return sum
+        const rate = car.sale_currency === 'USD' ? 3.67 :
+                    car.sale_currency === 'EUR' ? 4.00 :
+                    car.sale_currency === 'GBP' ? 4.60 : 1
+        return sum + (car.sale_price * rate)
+      }, 0) || 0
+
+      const monthlyGrowth = lastMonthRevenue > 0 ?
+        ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0
+
+      // Get active cars count
+      const { data: activeCarsData } = await supabase
+        .from('cars')
+        .select('id')
+        .eq('user_id', user.id)
+        .in('status', ['in_transit', 'for_sale', 'reserved'])
+
+      setFinancialMetrics({
+        totalRevenue,
+        totalExpenses,
+        netProfit,
+        profitMargin,
+        roi,
+        avgDaysToSell,
+        cashFlow: totalRevenue - totalExpenses,
+        monthlyGrowth,
+        expenseGrowth: 0, // Could be calculated similarly
+        activeCars: activeCarsData?.length || 0,
+        soldCarsThisMonth: currentMonthCars?.length || 0,
+        pendingExpenses: 0 // Could be calculated from pending transactions
+      })
+    } catch (error) {
+      console.error('Error calculating financial metrics:', error)
+    }
+  }
 
   const handleExpenseClick = (expenseId: string) => {
     setSelectedExpenseId(expenseId)
@@ -79,6 +230,9 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
 
       if (expensesError) throw expensesError
       setExpenses(expensesData || [])
+
+      // Calculate financial metrics after data is loaded
+      await calculateFinancialMetrics()
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -127,7 +281,123 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
         <p className="text-gray-600 text-lg">Track all expenses and financial operations</p>
       </div>
 
-      {/* Summary Stats */}
+      {/* Enhanced Financial Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Revenue */}
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {formatCurrency(financialMetrics.totalRevenue, 'AED')}
+              </p>
+              <div className="flex items-center mt-1">
+                {financialMetrics.monthlyGrowth >= 0 ? (
+                  <ArrowUpRight className="h-4 w-4 text-green-500 mr-1" />
+                ) : (
+                  <ArrowDownRight className="h-4 w-4 text-red-500 mr-1" />
+                )}
+                <p className={`text-xs font-medium ${
+                  financialMetrics.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {Math.abs(financialMetrics.monthlyGrowth).toFixed(1)}% vs last month
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Net Profit */}
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                financialMetrics.netProfit >= 0
+                  ? 'bg-gradient-to-r from-emerald-400 to-emerald-600'
+                  : 'bg-gradient-to-r from-red-400 to-red-600'
+              }`}>
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Net Profit</p>
+              <p className={`text-2xl font-bold ${
+                financialMetrics.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
+              }`}>
+                {financialMetrics.netProfit >= 0 ? '+' : ''}{formatCurrency(financialMetrics.netProfit, 'AED')}
+              </p>
+              <div className="flex items-center mt-1">
+                <Percent className="h-3 w-3 text-gray-500 mr-1" />
+                <p className="text-xs text-gray-500">
+                  {financialMetrics.profitMargin.toFixed(1)}% margin
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ROI */}
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+                <Target className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">ROI</p>
+              <p className={`text-2xl font-bold ${
+                financialMetrics.roi >= 0 ? 'text-purple-600' : 'text-red-600'
+              }`}>
+                {financialMetrics.roi >= 0 ? '+' : ''}{financialMetrics.roi.toFixed(1)}%
+              </p>
+              <div className="flex items-center mt-1">
+                <Calendar className="h-3 w-3 text-gray-500 mr-1" />
+                <p className="text-xs text-gray-500">
+                  {Math.round(financialMetrics.avgDaysToSell)} avg days to sell
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Cash Flow */}
+        <div className="metric-card p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                financialMetrics.cashFlow >= 0
+                  ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                  : 'bg-gradient-to-r from-orange-400 to-orange-600'
+              }`}>
+                {financialMetrics.cashFlow >= 0 ? (
+                  <CheckCircle className="h-6 w-6 text-white" />
+                ) : (
+                  <AlertTriangle className="h-6 w-6 text-white" />
+                )}
+              </div>
+            </div>
+            <div className="ml-4 flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Cash Flow</p>
+              <p className={`text-2xl font-bold ${
+                financialMetrics.cashFlow >= 0 ? 'text-blue-600' : 'text-orange-600'
+              }`}>
+                {financialMetrics.cashFlow >= 0 ? '+' : ''}{formatCurrency(financialMetrics.cashFlow, 'AED')}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {financialMetrics.activeCars} active cars
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="metric-card p-6">
           <div className="flex items-center">
@@ -141,7 +411,7 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
               <p className="text-2xl font-bold text-gray-800">
                 {formatCurrency(totalCarExpenses, 'AED')}
               </p>
-              <p className="text-xs text-gray-500 mt-1">4 operations</p>
+              <p className="text-xs text-gray-500 mt-1">{carExpenses.length} operations</p>
             </div>
           </div>
         </div>
@@ -149,16 +419,16 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
         <div className="metric-card p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-pink-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center">
                 <Receipt className="h-6 w-6 text-white" />
               </div>
             </div>
             <div className="ml-4 flex-1">
-              <p className="text-sm font-medium text-gray-600 mb-1">General Expenses</p>
+              <p className="text-sm font-medium text-gray-600 mb-1">Other Expenses</p>
               <p className="text-2xl font-bold text-gray-800">
                 {formatCurrency(totalOtherExpenses, 'AED')}
               </p>
-              <p className="text-xs text-gray-500 mt-1">2 operations</p>
+              <p className="text-xs text-gray-500 mt-1">{otherExpenses.length} operations</p>
             </div>
           </div>
         </div>
@@ -167,7 +437,7 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-white" />
+                <PieChart className="h-6 w-6 text-white" />
               </div>
             </div>
             <div className="ml-4 flex-1">
@@ -175,7 +445,7 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
               <p className="text-2xl font-bold text-gray-800">
                 {formatCurrency(totalCarExpenses + totalOtherExpenses, 'AED')}
               </p>
-              <p className="text-xs text-gray-500 mt-1">6 operations total</p>
+              <p className="text-xs text-gray-500 mt-1">{expenses.length} operations total</p>
             </div>
           </div>
         </div>
@@ -235,6 +505,27 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
           </select>
         </div>
         <div className="flex space-x-3">
+          <button
+            onClick={() => setShowTaxModal(true)}
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
+          >
+            <Calculator className="h-5 w-5 mr-2" />
+            Tax
+          </button>
+          <button
+            onClick={() => setShowBudgetModal(true)}
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
+          >
+            <Target className="h-5 w-5 mr-2" />
+            Budgets
+          </button>
+          <button
+            onClick={() => setShowReportsModal(true)}
+            className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
+          >
+            <FileText className="h-5 w-5 mr-2" />
+            Reports
+          </button>
           <button
             onClick={() => setShowAnalyticsModal(true)}
             className="btn-primary px-6 py-3 rounded-xl flex items-center font-medium"
@@ -359,6 +650,24 @@ export default function FinancePage({ onDataUpdate }: FinancePageProps) {
         }}
         expenseId={selectedExpenseId}
         onExpenseUpdated={fetchData}
+      />
+
+      {/* Financial Reports Modal */}
+      <FinancialReportsModal
+        isOpen={showReportsModal}
+        onClose={() => setShowReportsModal(false)}
+      />
+
+      {/* Budget Management Modal */}
+      <BudgetManagementModal
+        isOpen={showBudgetModal}
+        onClose={() => setShowBudgetModal(false)}
+      />
+
+      {/* Tax Management Modal */}
+      <TaxManagementModal
+        isOpen={showTaxModal}
+        onClose={() => setShowTaxModal(false)}
       />
     </div>
   )
