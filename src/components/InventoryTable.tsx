@@ -184,7 +184,7 @@ export default function InventoryTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-full overflow-x-hidden">
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <SearchInput
