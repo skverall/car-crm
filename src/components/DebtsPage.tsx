@@ -848,7 +848,7 @@ export default function DebtsPage({ onDataUpdate }: DebtsPageProps) {
           </div>
         ))}
       </div>
-      </div>
+
       {filteredAndSortedDebts.length === 0 && (
         <div className="col-span-full">
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
