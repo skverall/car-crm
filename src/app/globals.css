@@ -357,6 +357,26 @@ main {
   flex-direction: column;
 }
 
+/* Auth form specific styling */
+.auth-form-container {
+  max-width: 400px !important;
+  width: 100% !important;
+}
+
+.auth-form-container input,
+.auth-form-container select {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Mobile auth form styling */
+@media (max-width: 640px) {
+  .auth-form-container {
+    max-width: 350px !important;
+    margin: 0 auto !important;
+  }
+}
+
 /* Improve focus states for accessibility */
 button:focus,
 input:focus,
