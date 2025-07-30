@@ -338,26 +338,23 @@ export default function Dashboard({ onDataUpdate, onPageChange }: DashboardProps
             </div>
           </div>
 
-          {/* Payment Methods */}
+          {/* Remaining Cars */}
           <div
             className="metric-card p-6 cursor-pointer hover:scale-105 transition-transform duration-200"
-            onClick={() => onPageChange('cash')}
+            onClick={() => onPageChange('inventory')}
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-rose-400 to-red-500 rounded-xl flex items-center justify-center">
-                  <div className="flex space-x-1">
-                    <Banknote className="h-3 w-3 text-white" />
-                    <CreditCard className="h-3 w-3 text-white" />
-                  </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-orange-600 rounded-xl flex items-center justify-center">
+                  <Package className="h-6 w-6 text-white" />
                 </div>
               </div>
               <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Cash Payments</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Remaining Cars</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {formatCurrency(stats.cashPayments, 'AED')}
+                  {stats.unsoldCars}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">vs {formatCurrency(stats.bankPayments, 'AED')} bank</p>
+                <p className="text-xs text-gray-500 mt-1">In inventory</p>
               </div>
             </div>
           </div>
