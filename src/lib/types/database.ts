@@ -75,6 +75,7 @@ export interface Expense {
   id: string
   user_id: string
   car_id: string | null
+  investor_id?: string | null
   category: ExpenseCategory
   description: string
   amount: number
@@ -112,6 +113,47 @@ export interface ExchangeRate {
   date: string
   created_at: string
 }
+
+export interface Investor {
+  id: string
+  user_id?: string | null
+  name: string
+  email?: string | null
+  initial_capital: number
+  notes?: string | null
+  created_at: string
+}
+
+export interface CarInvestor {
+  car_id: string
+  investor_id: string
+  share: number
+  capital_contribution: number
+}
+
+export type InvestorTxType = 'contribution' | 'distribution' | 'extra_income' | 'expense'
+
+export interface InvestorTransaction {
+  id: string
+  investor_id: string
+  tx_date: string
+  amount: number
+  currency: CurrencyType
+  tx_type: InvestorTxType
+  note?: string | null
+}
+
+export interface ExtraIncome {
+  id: string
+  income_date: string
+  source: string
+  amount: number
+  currency: CurrencyType
+  car_id?: string | null
+  investor_id?: string | null
+  note?: string | null
+}
+
 
 export interface FinancialAccount {
   id: string
@@ -273,6 +315,26 @@ export interface Database {
         Insert: Omit<Document, 'id' | 'uploaded_at'>
         Update: Partial<Omit<Document, 'id' | 'uploaded_at'>>
       }
+      investors: {
+        Row: Investor
+        Insert: Omit<Investor, 'id' | 'created_at'>
+        Update: Partial<Omit<Investor, 'id' | 'created_at'>>
+      }
+      car_investors: {
+        Row: CarInvestor
+        Insert: CarInvestor
+        Update: Partial<CarInvestor>
+      }
+      investor_transactions: {
+        Row: InvestorTransaction
+        Insert: Omit<InvestorTransaction, 'id'>
+        Update: Partial<Omit<InvestorTransaction, 'id'>>
+      }
+      extra_income: {
+        Row: ExtraIncome
+        Insert: Omit<ExtraIncome, 'id'>
+        Update: Partial<Omit<ExtraIncome, 'id'>>
+      }
       financial_accounts: {
         Row: FinancialAccount
         Insert: Omit<FinancialAccount, 'id' | 'created_at' | 'updated_at'>
@@ -308,6 +370,12 @@ export interface Database {
       car_profit_analysis: {
         Row: CarProfitAnalysis
       }
+      car_investor_pnl: {
+        Row: { investor_id: string; car_id: string; investor_profit_aed: number }
+      }
+      investor_balances: {
+        Row: { investor_id: string; name: string; initial_investment_aed: number; realized_pnl_aed: number; net_flows_aed: number; extra_income_aed: number }
+      }
     }
     Functions: {}
     Enums: {
@@ -315,6 +383,7 @@ export interface Database {
       expense_category: ExpenseCategory
       currency_type: CurrencyType
       vehicle_condition: VehicleCondition
+      investor_tx_type: InvestorTxType
     }
   }
 }
